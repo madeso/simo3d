@@ -1,0 +1,4 @@
+global hello = function()
+{
+	msg("Hello world!", "Hello?");
+};

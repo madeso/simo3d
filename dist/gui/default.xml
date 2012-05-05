@@ -1,0 +1,32 @@
+<gui>
+  <menus>
+    <menu>
+      <title>File</title>
+      <childs>
+        <submenu>
+          <title>Sub</title>
+          <childs>
+            <button>
+              <display>Hello?</display>
+              <shortcut>Ctrl+H</shortcut>
+              <cmd>hello();</cmd>
+            </button>
+            <button>
+              <display>Console</display>
+              <shortcut>F2</shortcut>
+              <cmd>console();</cmd>
+            </button>
+          </childs>
+        </submenu>
+        <seperator/>
+        <button>
+          <display>Quit</display>
+          <shortcut>Alt+F4</shortcut>
+          <cmd>
+            quit();
+          </cmd>
+        </button>
+      </childs>
+    </menu>
+  </menus>
+</gui>
