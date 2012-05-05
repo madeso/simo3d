@@ -1,0 +1,39 @@
+gui
+{
+	menus
+	{
+		menu
+		{
+			title File
+			childs
+			{
+				submenu
+				{
+					title Sub
+					childs
+					{
+						button
+						{
+							display Hello?
+							shortcut Ctrl+H
+							cmd "hello();"
+						}
+						button
+						{
+							display Console
+							shortcut F2
+							cmd "console();"
+						}
+					}
+				}
+				seperator {}
+				button
+				{
+					display Quit
+					shortcut Alt+F4
+					cmd "quit();"
+				}
+			}
+		}
+	}
+}

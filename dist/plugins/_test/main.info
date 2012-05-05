@@ -1,0 +1,7 @@
+main
+{
+	script
+	{
+		name test.gm
+	}
+}
