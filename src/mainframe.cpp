@@ -109,7 +109,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	mMachine.RegisterLibraryFunction("console", GM_ShowHideConsole(this) );
 	mMachine.RegisterLibraryFunction("reload", GM_ReloadScripts(mScripts) );
 
-	wxString file = wxStandardPaths::Get().GetPluginsDir() + "/gui/default.xml";
+	wxString file = wxStandardPaths::Get().GetPluginsDir() + "/gui/default.info";
 	mConsole = new ConsoleDlg(0, &mMachine);
 	mScripts = new ScriptLibrary(&mMachine, mConsole);
 
@@ -237,7 +237,7 @@ void MainFrame::loadGui(const string& file)
 		}
 
 		ptree doc;
-		read_xml(f, doc);
+		read_info(f, doc);
 		
 		const ptree& root = doc.get_child(_T("gui"));
 

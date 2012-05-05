@@ -29,6 +29,7 @@ void ConsoleDlg::addLog(const wxString& str)
 {
 	dLog->AppendText(str);
 	dLog->AppendText("\n");
+	//OutputDebugString(str);
 }
 
 void ConsoleDlg::OnInputEnter(wxCommandEvent& event)

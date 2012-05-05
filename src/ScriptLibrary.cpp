@@ -94,7 +94,7 @@ bool ScriptLibrary::reload()
 bool ScriptLibrary::init()
 {
 	ptree doc;
-	const wxString file((wxStandardPaths::Get().GetPluginsDir() + "/plugins/plugins.xml").c_str());
+	const wxString file((wxStandardPaths::Get().GetPluginsDir() + "/plugins/plugins.info").c_str());
 
 	ifstream f;
 	f.open(WX_CSTR(file));
@@ -106,17 +106,20 @@ bool ScriptLibrary::init()
 
 	try
 	{
-		read_xml(f, doc);
+		read_info(f, doc);
 		const ptree& root = doc.get_child(_T("plugins"));
 
 		bool allok = true;
 
-		BOOST_FOREACH(const ptree::value_type &e, root.get_child(_T("plugin")))
+		BOOST_FOREACH(const ptree::value_type &e, root)
 		{
-			const wxString name = e.second.get<string>(_T("name"));
-			if( false == loadManifest(WX_CSTR(name)) )
+			if( e.first == _T("plugin") )
 			{
-				allok = false;
+				const wxString name = e.second.get<string>(_T("name"));
+				if( false == loadManifest(WX_CSTR(name)) )
+				{
+					allok = false;
+				}
 			}
 		}
 		return allok;
@@ -131,7 +134,7 @@ bool ScriptLibrary::init()
 bool ScriptLibrary::loadManifest(const string& name)
 {
 	ptree doc;
-	const wxString file((wxStandardPaths::Get().GetPluginsDir() + "/plugins/" + name + "/main.xml").c_str());
+	const wxString file((wxStandardPaths::Get().GetPluginsDir() + "/plugins/" + name + "/main.info").c_str());
 	ifstream f;
 	f.open(WX_CSTR(file));
 	if( false == f.good() )
@@ -141,7 +144,7 @@ bool ScriptLibrary::loadManifest(const string& name)
 	}
 	try
 	{
-		read_xml(f, doc);
+		read_info(f, doc);
 
 		const ptree& root = doc.get_child(_T("main"));
 
@@ -149,13 +152,16 @@ bool ScriptLibrary::loadManifest(const string& name)
 
 		bool allok = true;
 
-		BOOST_FOREACH(const ptree::value_type& e, root.get_child(_T("script")))
+		BOOST_FOREACH(const ptree::value_type& e, root)
 		{
-			const wxString sname = e.second.get<string>(_T("name"));
-			const wxString sfile((wxStandardPaths::Get().GetPluginsDir() + "/plugins/" + name + "/" + sname ).c_str());
-			if( false == run(WX_CSTR(sfile), dev) )
+			if( e.first == _T("script") )
 			{
-				allok = false;
+				const wxString sname = e.second.get<string>(_T("name"));
+				const wxString sfile((wxStandardPaths::Get().GetPluginsDir() + "/plugins/" + name + "/" + sname ).c_str());
+				if( false == run(WX_CSTR(sfile), dev) )
+				{
+					allok = false;
+				}
 			}
 		}
 		return allok;
