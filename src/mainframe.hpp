@@ -2,7 +2,6 @@
 #define SIMO_MAINFRAME_HPP
 
 #include <wx/wx.h>
-#include <gmThread.h>
 #include <string>
 #include <map>
 
@@ -40,9 +39,7 @@ private:
 
 	void loadGui(const string& file);
 
-	gmMachine mMachine;
 	ConsoleDlg* mConsole;
-
 	ScriptLibrary* mScripts;
 };
 

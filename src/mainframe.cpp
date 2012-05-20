@@ -8,10 +8,9 @@
 #include "ConsoleDlg.h"
 #include "ScriptLibrary.h"
 
-#include "gmMathLib.h"
-#include "gmStringLib.h"
-
 #include "ptree.h"
+
+#include "simopython.h"
 
 enum
 {
@@ -19,108 +18,86 @@ enum
 	ID_About
 };
 
-// GM_CDECL
-class GM_MessageBox
+namespace
 {
-public:
-	MainFrame* main;
-
-	GM_MessageBox(MainFrame* mf)
-		: main(mf)
+	namespace simodetail
 	{
-	}
+		static MainFrame*& Instance()
+		{
+			static MainFrame* globals = 0;
+			return globals;
+		}
 
-	int operator()(gmThread* a_thread)
-	{
-		GM_CHECK_NUM_PARAMS(2);
-		GM_CHECK_STRING_PARAM(msg, 0);
-		GM_CHECK_STRING_PARAM(title, 1);
-		wxMessageBox(msg, title, wxOK|wxICON_INFORMATION, main);
-		return GM_OK;
-	}
-};
+		static MainFrame* Get()
+		{
+			MainFrame* g = Instance();
+			assert(g);
+			return g;
+		}
 
-class GM_CloseThis
+		void msg(const std::string& msg, const std::string& title)
+		{
+			wxMessageBox(msg, title, wxOK|wxICON_INFORMATION, Get());
+		}
+
+		void closemain()
+		{
+			Get()->Close(true);
+		}
+
+		void showconsole()
+		{
+			Get()->ShowHideConsole();
+		}
+
+		void reloadscripts()
+		{
+			//Get()->reload();
+		}
+	}
+}
+
+BOOST_PYTHON_MODULE(simocore)
 {
-public:
-	MainFrame* main;
+	using namespace boost::python;
+	using namespace simodetail;
 
-	GM_CloseThis(MainFrame* mf)
-		: main(mf)
-	{
-	}
-
-	int operator()(gmThread* a_thread)
-	{
-		main->Close(true);
-		return GM_OK;
-	}
-};
-
-class GM_ShowHideConsole
-{
-public:
-	MainFrame* main;
-
-	GM_ShowHideConsole(MainFrame* mf)
-		: main(mf)
-	{
-	}
-
-	int operator()(gmThread* a_thread)
-	{
-		main->ShowHideConsole();
-		return GM_OK;
-	}
-};
-
-class GM_ReloadScripts
-{
-public:
-	ScriptLibrary* main;
-
-	GM_ReloadScripts(ScriptLibrary* mf)
-		: main(mf)
-	{
-	}
-
-	int operator()(gmThread* a_thread)
-	{
-		main->reload();
-		return GM_OK;
-	}
-};
+#define DEF(x) def(#x, x)
+	DEF(msg);
+	DEF(closemain);
+	DEF(showconsole);
+	DEF(reloadscripts);
+}
 
 MainFrame::~MainFrame()
 {
+	simodetail::Instance() = 0;
 	mConsole->Destroy();
+	
+	delete mScripts;
+	delete mConsole;
 }
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-	: wxFrame( NULL, -1, title, pos, size )
+: wxFrame( NULL, -1, title, pos, size )
 {
+	simodetail::Instance() = this;
 	CreateStatusBar();
 	SetStatusText( _("Welcome to SiMo!") );
 
-	gmBindStringLib(&mMachine);
-	gmBindMathLib(&mMachine);
-	mMachine.RegisterLibraryFunction("msg", GM_MessageBox(this) );
-	mMachine.RegisterLibraryFunction("quit", GM_CloseThis(this) );
-	mMachine.RegisterLibraryFunction("console", GM_ShowHideConsole(this) );
-	mMachine.RegisterLibraryFunction("reload", GM_ReloadScripts(mScripts) );
+	PyImport_AppendInittab("simocore", PyInit_simocore);
+	Py_Initialize();
 
 	wxString file = wxStandardPaths::Get().GetPluginsDir() + "/gui/default.info";
-	mConsole = new ConsoleDlg(0, &mMachine);
-	mScripts = new ScriptLibrary(&mMachine, mConsole);
-
-	mMachine.RegisterLibraryFunction("reload", GM_ReloadScripts(mScripts) );
+	mConsole = new ConsoleDlg(0);
+	mScripts = new ScriptLibrary(mConsole);
 
 	mScripts->init();
 
 	if( mScripts->hasErrors() )
 	{
-		wxMessageBox("Failed to compile all scripts, see console for details", "SiMo error", wxOK|wxICON_ERROR, this);
-		mScripts->clearErrors();
+		wxMessageBox("Failed to compile all scripts", "SiMo error", wxOK|wxICON_ERROR, this);
+		Close();
 	}
 
 	loadGui(WX_CSTR(file));
@@ -224,7 +201,7 @@ void MainFrame::loadGui(const string& file)
 {
 	IdGenerator idg;
 
-	
+
 	try
 	{
 		ifstream f;
@@ -238,7 +215,7 @@ void MainFrame::loadGui(const string& file)
 
 		ptree doc;
 		read_info(f, doc);
-		
+
 		const ptree& root = doc.get_child(_T("gui"));
 
 		const ptree& menuContainerEl = root.get_child(_T("menus"));

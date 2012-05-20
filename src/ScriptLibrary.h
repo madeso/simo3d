@@ -4,7 +4,6 @@
 #include <string>
 #include <map>
 #include <wx/DateTime.h>
-#include <gmThread.h>
 
 #ifdef _UNICODE
 	typedef std::wstring string;
@@ -17,7 +16,7 @@ class ConsoleDlg;
 class ScriptLibrary
 {
 public:
-	ScriptLibrary(gmMachine* m, ConsoleDlg* c);
+	ScriptLibrary(ConsoleDlg* c);
 
 	bool init();
 	bool reload();
@@ -25,8 +24,6 @@ public:
 	const bool hasErrors() const;
 	void clearErrors();
 private:
-	gmMachine* mMachine;
-
 	bool run(const string& file);
 	bool compile(const string& file);
 

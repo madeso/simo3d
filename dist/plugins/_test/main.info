@@ -2,6 +2,6 @@ main
 {
 	script
 	{
-		name test.gm
+		name test.py
 	}
 }

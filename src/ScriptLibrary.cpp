@@ -7,12 +7,11 @@
 #include <fstream>
 #include <wx/stdpaths.h>
 #include <wx/filesys.h>
-
+#include "simopython.h"
 #include "ptree.h"
 
-ScriptLibrary::ScriptLibrary(gmMachine* m, ConsoleDlg* c)
-	: mMachine(m)
-	, mConsole(c)
+ScriptLibrary::ScriptLibrary(ConsoleDlg* c)
+	: mConsole(c)
 	, mHasErrors(false)
 {
 }
@@ -35,10 +34,9 @@ bool ScriptLibrary::compile(const string& filename)
 	std::string fileString = std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
 	file.close();
 
-	const int errors = mMachine->ExecuteString(fileString.c_str());
+	const int errors = PyRun_SimpleString(fileString.c_str());
 
-	const bool gotErrors = mConsole->parseErrors(filename);
-	const bool detectedErrors = errors > 0 || gotErrors;
+	const bool detectedErrors = errors != 0;
 	if( detectedErrors ) mHasErrors = true;
 	return false==detectedErrors;
 }

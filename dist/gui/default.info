@@ -16,13 +16,13 @@ gui
 						{
 							display Hello?
 							shortcut Ctrl+H
-							cmd "hello();"
+							cmd "hello()"
 						}
 						button
 						{
 							display Console
 							shortcut F2
-							cmd "console();"
+							cmd "simocore.showconsole()"
 						}
 					}
 				}
@@ -31,7 +31,7 @@ gui
 				{
 					display Quit
 					shortcut Alt+F4
-					cmd "quit();"
+					cmd "simocore.closemain()"
 				}
 			}
 		}
