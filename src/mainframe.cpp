@@ -11,6 +11,7 @@
 #include "ptree.h"
 
 #include "simopython.h"
+#include "emb.h"
 
 enum
 {
@@ -71,6 +72,7 @@ BOOST_PYTHON_MODULE(simocore)
 
 MainFrame::~MainFrame()
 {
+	Console_End();
 	simodetail::Instance() = 0;
 	mConsole->Destroy();
 	
@@ -86,7 +88,12 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	SetStatusText( _("Welcome to SiMo!") );
 
 	PyImport_AppendInittab("simocore", PyInit_simocore);
+	PyImport_AppendInittab("emb", emb::PyInit_emb);
 	Py_Initialize();
+	PyImport_ImportModule("emb");
+
+	Console_Begin();
+
 
 	wxString file = wxStandardPaths::Get().GetPluginsDir() + "/gui/default.info";
 	mConsole = new ConsoleDlg(0);
@@ -110,6 +117,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 void MainFrame::addLog(const wxString& str)
 {
 	mConsole->addLog(str);
+	mConsole->addLog("\n");
 }
 
 void MainFrame::ShowHideConsole()

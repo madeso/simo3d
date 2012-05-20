@@ -20,7 +20,7 @@ ConsoleDlgBase::ConsoleDlgBase( wxWindow* parent, wxWindowID id, const wxString&
 	fgSizer1->SetFlexibleDirection( wxBOTH );
 	fgSizer1->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_ALL );
 	
-	dLog = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxTE_DONTWRAP|wxTE_MULTILINE|wxTE_READONLY|wxVSCROLL );
+	dLog = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RICH|wxHSCROLL|wxTE_DONTWRAP|wxTE_MULTILINE|wxTE_READONLY|wxVSCROLL );
 	fgSizer1->Add( dLog, 0, wxALL|wxEXPAND, 5 );
 	
 	dInput = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB );

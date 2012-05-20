@@ -98,7 +98,7 @@ bool ScriptLibrary::init()
 	f.open(WX_CSTR(file));
 	if( f.good() == false )
 	{
-		mConsole->addLog("failed loading: " + file);
+		mConsole->addLog("failed loading: " + file + "\n");
 		return false;
 	}
 
@@ -124,7 +124,7 @@ bool ScriptLibrary::init()
 	}
 	catch(const std::exception& e)
 	{
-		mConsole->addLog("failed loading: " + file + ", " + e.what());
+		mConsole->addLog("failed loading: " + file + ", " + e.what() + "\n");
 		return false;
 	}
 }
@@ -137,7 +137,7 @@ bool ScriptLibrary::loadManifest(const string& name)
 	f.open(WX_CSTR(file));
 	if( false == f.good() )
 	{
-		mConsole->addLog("failed loading manifest: " + file);
+		mConsole->addLog("failed loading manifest: " + file + "\n");
 		return false;
 	}
 	try
@@ -166,7 +166,7 @@ bool ScriptLibrary::loadManifest(const string& name)
 	}
 	catch(const std::exception& e)
 	{
-		mConsole->addLog("failed loading manifest: " + file + ", " + e.what());
+		mConsole->addLog("failed loading manifest: " + file + ", " + e.what() + "\n");
 		return false;
 	}
 	
@@ -198,8 +198,8 @@ bool ScriptLibrary::run(const string& file, bool insert)
 {
 	const bool result = run(file.c_str());
 
-	if( result ) mConsole->addLog(file + " has been sucessfully loaded");
-	else mConsole->addLog(file + " failed to load");;
+	if( result ) mConsole->addLog(file + " has been sucessfully loaded\n");
+	else mConsole->addLog(file + " failed to load\n");;
 
 	if( insert )
 	{
