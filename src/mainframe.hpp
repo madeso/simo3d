@@ -29,7 +29,10 @@ public:
 	void ShowHideConsole();
 
 	void addLog(const wxString& str);
+
+	static MainFrame* Get();
 private:
+	static MainFrame* sInstance;
 	View* mView;
 
 	string getResponse(int id) const;

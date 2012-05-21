@@ -23,32 +23,19 @@ namespace
 {
 	namespace simodetail
 	{
-		static MainFrame*& Instance()
-		{
-			static MainFrame* globals = 0;
-			return globals;
-		}
-
-		static MainFrame* Get()
-		{
-			MainFrame* g = Instance();
-			assert(g);
-			return g;
-		}
-
 		void msg(const std::string& msg, const std::string& title)
 		{
-			wxMessageBox(msg, title, wxOK|wxICON_INFORMATION, Get());
+			wxMessageBox(msg, title, wxOK|wxICON_INFORMATION, MainFrame::Get());
 		}
 
 		void closemain()
 		{
-			Get()->Close(true);
+			MainFrame::Get()->Close(true);
 		}
 
 		void showconsole()
 		{
-			Get()->ShowHideConsole();
+			MainFrame::Get()->ShowHideConsole();
 		}
 
 		void reloadscripts()
@@ -70,10 +57,17 @@ BOOST_PYTHON_MODULE(simocore)
 	DEF(reloadscripts);
 }
 
+MainFrame* MainFrame::Get()
+{
+	assert(sInstance);
+	return sInstance;
+}
+MainFrame* MainFrame::sInstance = 0;
+
 MainFrame::~MainFrame()
 {
 	Console_End();
-	simodetail::Instance() = 0;
+	sInstance =  0;
 	mConsole->Destroy();
 	
 	delete mScripts;
@@ -83,9 +77,11 @@ MainFrame::~MainFrame()
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 : wxFrame( NULL, -1, title, pos, size )
 {
-	simodetail::Instance() = this;
 	CreateStatusBar();
 	SetStatusText( _("Welcome to SiMo!") );
+
+	assert(sInstance==0);
+	sInstance = this;
 
 	PyImport_AppendInittab("simocore", PyInit_simocore);
 	PyImport_AppendInittab("emb", emb::PyInit_emb);
