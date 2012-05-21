@@ -13,11 +13,11 @@ BEGIN_EVENT_TABLE(View, wxGLCanvas)
 END_EVENT_TABLE()
 
 
-View::View(wxWindow *parent, wxWindowID id,
+View::View(wxWindow *parent, Data* data, wxWindowID id,
 		   const wxPoint& pos, const wxSize& size, long style, const wxString& name)
 		   : wxGLCanvas(parent, (wxGLCanvas*) NULL, id, pos, size, style|wxFULL_REPAINT_ON_RESIZE , name )
+		   , mData(0)
 {
-	m_init = false;
 }
 
 View::~View()
@@ -34,57 +34,27 @@ void View::Render()
 
 	SetCurrent();
 	// Init OpenGL once, but after SetCurrent
-	if (!m_init)
-	{
-		InitGL();
-		m_init = true;
-	}
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
+	/* position viewer */
+
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -2.0f);
+
+	/* position object */
+	glRotatef(30.0f, 1.0f, 0.0f, 0.0f);
+	glRotatef(30.0f, 0.0f, 1.0f, 0.0f);
 
 	/* clear color and depth buffers */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	/*if( m_gllist == 0 )
-	{
-	m_gllist = glGenLists( 1 );
-	glNewList( m_gllist, GL_COMPILE_AND_EXECUTE );
-	draw six faces of a cube */
-	glBegin(GL_QUADS);
-	glNormal3f( 0.0f, 0.0f, 1.0f);
-	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f(-0.5f, 0.5f, 0.5f);
-	glVertex3f(-0.5f,-0.5f, 0.5f); glVertex3f( 0.5f,-0.5f, 0.5f);
-
-	glNormal3f( 0.0f, 0.0f,-1.0f);
-	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f(-0.5f, 0.5f,-0.5f);
-	glVertex3f( 0.5f, 0.5f,-0.5f); glVertex3f( 0.5f,-0.5f,-0.5f);
-
-	glNormal3f( 0.0f, 1.0f, 0.0f);
-	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f( 0.5f, 0.5f,-0.5f);
-	glVertex3f(-0.5f, 0.5f,-0.5f); glVertex3f(-0.5f, 0.5f, 0.5f);
-
-	glNormal3f( 0.0f,-1.0f, 0.0f);
-	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f( 0.5f,-0.5f,-0.5f);
-	glVertex3f( 0.5f,-0.5f, 0.5f); glVertex3f(-0.5f,-0.5f, 0.5f);
-
-	glNormal3f( 1.0f, 0.0f, 0.0f);
-	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f( 0.5f,-0.5f, 0.5f);
-	glVertex3f( 0.5f,-0.5f,-0.5f); glVertex3f( 0.5f, 0.5f,-0.5f);
-
-	glNormal3f(-1.0f, 0.0f, 0.0f);
-	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f(-0.5f,-0.5f, 0.5f);
-	glVertex3f(-0.5f, 0.5f, 0.5f); glVertex3f(-0.5f, 0.5f,-0.5f);
-	glEnd();/*
-
-			glEndList();
-			}
-			else
-			{
-			glCallList(m_gllist);
-			}*/
+	mData->render();
 
 	glFlush();
 	SwapBuffers();
@@ -115,25 +85,4 @@ void View::OnSize(wxSizeEvent& event)
 void View::OnEraseBackground(wxEraseEvent& WXUNUSED(event))
 {
 	// Do nothing, to avoid flashing.
-}
-
-void View::InitGL()
-{
-	SetCurrent();
-
-	/* set viewing projection */
-	glMatrixMode(GL_PROJECTION);
-	glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
-
-	/* position viewer */
-	glMatrixMode(GL_MODELVIEW);
-	glTranslatef(0.0f, 0.0f, -2.0f);
-
-	/* position object */
-	glRotatef(30.0f, 1.0f, 0.0f, 0.0f);
-	glRotatef(30.0f, 0.0f, 1.0f, 0.0f);
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
 }

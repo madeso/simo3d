@@ -10,7 +10,7 @@ class View : public wxGLCanvas
 {
 	friend class MainFrame;
 public:
-	View( wxWindow *parent, wxWindowID id = wxID_ANY,
+	View(wxWindow *parent, Data* data, wxWindowID id = wxID_ANY,
 		const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxDefaultSize,
 		long style = 0, const wxString& name = _T("View") );
@@ -22,9 +22,8 @@ public:
 	void OnEraseBackground(wxEraseEvent& event);
 
 	void Render();
-	void InitGL();
 private:
-	bool m_init;
+	Data* mData;
 	DECLARE_EVENT_TABLE()
 };
 

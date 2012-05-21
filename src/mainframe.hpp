@@ -15,6 +15,12 @@ class ScriptLibrary;
 	typedef std::string string;
 #endif
 
+class Data
+{
+public:
+	void render();
+};
+
 class MainFrame : public wxFrame
 {
 public:
@@ -33,6 +39,8 @@ public:
 	static MainFrame* Get();
 private:
 	static MainFrame* sInstance;
+
+	Data mData;
 	View* mView;
 
 	string getResponse(int id) const;

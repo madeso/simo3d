@@ -57,6 +57,35 @@ BOOST_PYTHON_MODULE(simocore)
 	DEF(reloadscripts);
 }
 
+void Data::render()
+{
+	glBegin(GL_QUADS);
+	glNormal3f( 0.0f, 0.0f, 1.0f);
+	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f(-0.5f, 0.5f, 0.5f);
+	glVertex3f(-0.5f,-0.5f, 0.5f); glVertex3f( 0.5f,-0.5f, 0.5f);
+
+	glNormal3f( 0.0f, 0.0f,-1.0f);
+	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f(-0.5f, 0.5f,-0.5f);
+	glVertex3f( 0.5f, 0.5f,-0.5f); glVertex3f( 0.5f,-0.5f,-0.5f);
+
+	glNormal3f( 0.0f, 1.0f, 0.0f);
+	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f( 0.5f, 0.5f,-0.5f);
+	glVertex3f(-0.5f, 0.5f,-0.5f); glVertex3f(-0.5f, 0.5f, 0.5f);
+
+	glNormal3f( 0.0f,-1.0f, 0.0f);
+	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f( 0.5f,-0.5f,-0.5f);
+	glVertex3f( 0.5f,-0.5f, 0.5f); glVertex3f(-0.5f,-0.5f, 0.5f);
+
+	glNormal3f( 1.0f, 0.0f, 0.0f);
+	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f( 0.5f,-0.5f, 0.5f);
+	glVertex3f( 0.5f,-0.5f,-0.5f); glVertex3f( 0.5f, 0.5f,-0.5f);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f(-0.5f,-0.5f, 0.5f);
+	glVertex3f(-0.5f, 0.5f, 0.5f); glVertex3f(-0.5f, 0.5f,-0.5f);
+	glEnd();
+}
+
 MainFrame* MainFrame::Get()
 {
 	assert(sInstance);
@@ -105,7 +134,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
 	loadGui(WX_CSTR(file));
 
-	mView = new View(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+	mView = new View(this, &mData, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 
 	Connect(wxEVT_ACTIVATE, wxActivateEventHandler(MainFrame::OnActivated));
 }
