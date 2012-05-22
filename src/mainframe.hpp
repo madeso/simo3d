@@ -5,6 +5,9 @@
 #include <string>
 #include <map>
 
+#include <cml/cml.h>
+#include <vector>
+
 class View;
 class ConsoleDlg;
 class ScriptLibrary;
@@ -15,9 +18,28 @@ class ScriptLibrary;
 	typedef std::string string;
 #endif
 
+typedef cml::vector3f vec3;
+
+class Face
+{
+public:
+	std::vector<int> indices;
+};
+
+class Mesh
+{
+public:
+	std::string name;
+	std::vector<vec3> vertices;
+	std::vector<vec3> normals;
+	std::vector<Face> faces;
+};
+
 class Data
 {
 public:
+	std::vector<Mesh> meshes;
+	void import(const std::string& path);
 	void render();
 };
 
@@ -36,6 +58,8 @@ public:
 
 	void addLog(const wxString& str);
 
+	Data& getData();
+
 	static MainFrame* Get();
 private:
 	static MainFrame* sInstance;
@@ -48,7 +72,7 @@ private:
 	typedef std::map<int, string> IdCmdMap;
 	IdCmdMap mCommands;
 
-	void loadGui(const string& file);
+	bool loadGui(const string& file);
 
 	ConsoleDlg* mConsole;
 	ScriptLibrary* mScripts;

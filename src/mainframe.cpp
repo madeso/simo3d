@@ -42,6 +42,11 @@ namespace
 		{
 			//Get()->reload();
 		}
+
+		Data& currentfile()
+		{
+			return MainFrame::Get()->getData();
+		}
 	}
 }
 
@@ -55,41 +60,53 @@ BOOST_PYTHON_MODULE(simocore)
 	DEF(closemain);
 	DEF(showconsole);
 	DEF(reloadscripts);
+	//DEF(currentfile);
+}
+
+void Data::import(const std::string& path)
+{
+	meshes.clear();
 }
 
 void Data::render()
 {
-	glBegin(GL_QUADS);
-	glNormal3f( 0.0f, 0.0f, 1.0f);
-	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f(-0.5f, 0.5f, 0.5f);
-	glVertex3f(-0.5f,-0.5f, 0.5f); glVertex3f( 0.5f,-0.5f, 0.5f);
+	BOOST_FOREACH(const Mesh& m, meshes)
+	{
+		BOOST_FOREACH(const Face& f, m.faces)
+		{
+			int type = GL_POINTS;
 
-	glNormal3f( 0.0f, 0.0f,-1.0f);
-	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f(-0.5f, 0.5f,-0.5f);
-	glVertex3f( 0.5f, 0.5f,-0.5f); glVertex3f( 0.5f,-0.5f,-0.5f);
+			switch(f.indices.size())
+			{
+				case 1: type = GL_POINTS; break;
+				case 2: type = GL_LINES; break;
+				case 3: type = GL_TRIANGLES; break;
+				default: type = GL_POLYGON; break;
+			}
 
-	glNormal3f( 0.0f, 1.0f, 0.0f);
-	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f( 0.5f, 0.5f,-0.5f);
-	glVertex3f(-0.5f, 0.5f,-0.5f); glVertex3f(-0.5f, 0.5f, 0.5f);
-
-	glNormal3f( 0.0f,-1.0f, 0.0f);
-	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f( 0.5f,-0.5f,-0.5f);
-	glVertex3f( 0.5f,-0.5f, 0.5f); glVertex3f(-0.5f,-0.5f, 0.5f);
-
-	glNormal3f( 1.0f, 0.0f, 0.0f);
-	glVertex3f( 0.5f, 0.5f, 0.5f); glVertex3f( 0.5f,-0.5f, 0.5f);
-	glVertex3f( 0.5f,-0.5f,-0.5f); glVertex3f( 0.5f, 0.5f,-0.5f);
-
-	glNormal3f(-1.0f, 0.0f, 0.0f);
-	glVertex3f(-0.5f,-0.5f,-0.5f); glVertex3f(-0.5f,-0.5f, 0.5f);
-	glVertex3f(-0.5f, 0.5f, 0.5f); glVertex3f(-0.5f, 0.5f,-0.5f);
-	glEnd();
+			glBegin(type);
+			BOOST_FOREACH(int i, f.indices)
+			{
+				if( m.normals.empty() == false )
+				{
+					glNormal3fv(m.normals[i].data());
+				}
+				glVertex3fv( m.vertices[i].data() );
+			}
+			glEnd();
+		}
+	}
 }
 
 MainFrame* MainFrame::Get()
 {
 	assert(sInstance);
 	return sInstance;
+}
+
+Data& MainFrame::getData()
+{
+	return mData;
 }
 MainFrame* MainFrame::sInstance = 0;
 
@@ -132,7 +149,11 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 		Close();
 	}
 
-	loadGui(WX_CSTR(file));
+	if( false == loadGui(WX_CSTR(file)) )
+	{
+		wxMessageBox("Failed to load gui from " + string(WX_CSTR(file)), "SiMo error", wxOK|wxICON_ERROR, this);
+		Close();
+	}
 
 	mView = new View(this, &mData, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 
@@ -230,10 +251,9 @@ wxMenu* loadMenu(MainFrame* mf, const ptree& menuEl, IdGenerator* idg, string* t
 	return menu;
 }
 
-void MainFrame::loadGui(const string& file)
+bool MainFrame::loadGui(const string& file)
 {
 	IdGenerator idg;
-
 
 	try
 	{
@@ -243,7 +263,7 @@ void MainFrame::loadGui(const string& file)
 		if( f.good() == false )
 		{
 			addLog("Unable to open " + file);
-			return;
+			return false;
 		}
 
 		ptree doc;
@@ -262,10 +282,12 @@ void MainFrame::loadGui(const string& file)
 			}
 			SetMenuBar(menuBar);
 		}
+		return true;
 	}
 	catch(const std::exception& e)
 	{
 		addLog("Unable to parse " + file + ", : " + e.what());
+		return false;
 	}
 }
 
