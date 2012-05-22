@@ -28,6 +28,21 @@ namespace
 			wxMessageBox(msg, title, wxOK|wxICON_INFORMATION, MainFrame::Get());
 		}
 
+		bool yesno(const std::string& msg, const std::string& title)
+		{
+			return wxMessageBox(msg, title, wxICON_QUESTION | wxYES_NO, MainFrame::Get()) == wxYES;
+		}
+
+		std::string openfile(const std::string& title, const std::string& pattern)
+		{
+			wxFileDialog openFileDialog(MainFrame::Get(), title, "", "", pattern, wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+
+			if (openFileDialog.ShowModal() == wxID_CANCEL)
+				return "";
+			else
+				return openFileDialog.GetPath();
+		}
+
 		void closemain()
 		{
 			MainFrame::Get()->Close(true);
@@ -57,13 +72,15 @@ BOOST_PYTHON_MODULE(simocore)
 
 #define DEF(x) def(#x, x)
 	DEF(msg);
+	DEF(yesno);
+	DEF(openfile);
 	DEF(closemain);
 	DEF(showconsole);
 	DEF(reloadscripts);
 	def("currentfile", make_function(currentfile, return_value_policy<reference_existing_object>()));
 
 	class_<Data>("Data")
-		.def("importmesh", &Data::import);
+		.def("importfile", &Data::import);
 		
 }
 
