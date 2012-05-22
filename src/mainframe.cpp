@@ -13,6 +13,11 @@
 #include "simopython.h"
 #include "emb.h"
 
+#include <assimp.hpp>
+#include <aiScene.h>
+#include <aiPostProcess.h>
+#pragma comment(lib, "assimp.lib")
+
 enum
 {
 	ID_Quit=1,
@@ -84,13 +89,61 @@ BOOST_PYTHON_MODULE(simocore)
 		
 }
 
+void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c)
+{
+	t.reserve(c);
+	for(unsigned i=0; i<c; ++i)
+	{
+		t.push_back( vec3(s[i].x, s[i].y, s[i].z) );
+	}
+}
+
 void Data::import(const std::string& path)
 {
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_JoinIdenticalVertices);
+
+	if( !scene)
+	{
+		throw std::exception(importer.GetErrorString());
+	}
+
+	if( scene->HasMeshes() == false )
+	{
+		throw std::exception("non meshes not currently supported");
+	}
+
 	meshes.clear();
+	meshes.reserve(scene->mNumMeshes);
+	for(unsigned int imesh=0; imesh<scene->mNumMeshes; ++imesh)
+	{
+		aiMesh* amesh = scene->mMeshes[imesh];
+		Mesh mesh;
+		mesh.name = amesh->mName.data;
+		vecopy(mesh.vertices, amesh->mVertices, amesh->mNumVertices);
+		if( amesh->mNormals )
+		{
+			vecopy(mesh.normals, amesh->mNormals, amesh->mNumVertices);
+		}
+
+		for(unsigned int iface=0; iface<amesh->mNumFaces; ++iface)
+		{
+			const aiFace& aface = amesh->mFaces[iface];
+			Face face;
+			for(unsigned int i=0; i<aface.mNumIndices; ++i)
+			{
+				face.indices.push_back( aface.mIndices[i] );
+			}
+			mesh.faces.push_back(face);
+		}
+
+		meshes.push_back(mesh);
+	}
 }
 
 void Data::render()
 {
+	glColor3f(1, 0, 0);
 	BOOST_FOREACH(const Mesh& m, meshes)
 	{
 		BOOST_FOREACH(const Face& f, m.faces)
@@ -336,6 +389,7 @@ void MainFrame::RunCommand(wxCommandEvent& ev)
 		wxMessageBox("Failed to sucessfully run command, see console for details", "SiMo error", wxOK|wxICON_ERROR, this);
 		mScripts->clearErrors();
 	}
+	mView->Refresh(false);
 }
 
 
