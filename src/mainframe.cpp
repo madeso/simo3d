@@ -60,7 +60,11 @@ BOOST_PYTHON_MODULE(simocore)
 	DEF(closemain);
 	DEF(showconsole);
 	DEF(reloadscripts);
-	//DEF(currentfile);
+	def("currentfile", make_function(currentfile, return_value_policy<reference_existing_object>()));
+
+	class_<Data>("Data")
+		.def("importmesh", &Data::import);
+		
 }
 
 void Data::import(const std::string& path)
@@ -118,6 +122,9 @@ MainFrame::~MainFrame()
 	
 	delete mScripts;
 	delete mConsole;
+
+	// should this be done? boost documentation says no, but doing this means less memleaks
+	Py_Finalize();
 }
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
