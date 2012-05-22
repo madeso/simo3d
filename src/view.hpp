@@ -21,8 +21,23 @@ public:
 	void OnSize(wxSizeEvent& event);
 	void OnEraseBackground(wxEraseEvent& event);
 
-	void Render();
+	void OnLeftDown(wxMouseEvent& e);
+	void OnLeftUp(wxMouseEvent& e);
+	void OnMiddleDown(wxMouseEvent& e);
+	void OnMiddleUp(wxMouseEvent& e);
+	void OnRightDown(wxMouseEvent& e);
+	void OnRightUp(wxMouseEvent& e);
+	void OnMotion(wxMouseEvent& e);
+	void OnWheel(wxMouseEvent& e);
+
+	void Invalidate();
 private:
+	float rotX;
+	float rotY;
+	float distance;
+	long lastx;
+	long lasty;
+	bool down;
 	Data* mData;
 	DECLARE_EVENT_TABLE()
 };

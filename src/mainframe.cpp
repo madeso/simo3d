@@ -101,7 +101,7 @@ void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c)
 void Data::import(const std::string& path)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_JoinIdenticalVertices);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
 
 	if( !scene)
 	{
@@ -143,7 +143,7 @@ void Data::import(const std::string& path)
 
 void Data::render()
 {
-	glColor3f(1, 0, 0);
+	//glColor3f(1, 0, 0);
 	BOOST_FOREACH(const Mesh& m, meshes)
 	{
 		BOOST_FOREACH(const Face& f, m.faces)
@@ -389,7 +389,7 @@ void MainFrame::RunCommand(wxCommandEvent& ev)
 		wxMessageBox("Failed to sucessfully run command, see console for details", "SiMo error", wxOK|wxICON_ERROR, this);
 		mScripts->clearErrors();
 	}
-	mView->Refresh(false);
+	mView->Invalidate();
 }
 
 
