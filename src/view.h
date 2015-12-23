@@ -4,42 +4,43 @@
 //#include <wx/wx.h>
 #include <wx/glcanvas.h>
 
-#include "mainframe.hpp"
+#include "mainframe.h"
 
-class View : public wxGLCanvas
-{
-	friend class MainFrame;
-public:
-	View(wxWindow *parent, Data* data, wxWindowID id = wxID_ANY,
-		const wxPoint& pos = wxDefaultPosition,
-		const wxSize& size = wxDefaultSize,
-		long style = 0, const wxString& name = _T("View") );
+class View : public wxGLCanvas {
+  friend class MainFrame;
 
-	~View();
+ public:
+  View(wxWindow* parent, Data* data, wxWindowID id = wxID_ANY,
+       const wxPoint& pos = wxDefaultPosition,
+       const wxSize& size = wxDefaultSize, long style = 0,
+       const wxString& name = _T("View"));
 
-	void OnPaint(wxPaintEvent& event);
-	void OnSize(wxSizeEvent& event);
-	void OnEraseBackground(wxEraseEvent& event);
+  ~View();
 
-	void OnLeftDown(wxMouseEvent& e);
-	void OnLeftUp(wxMouseEvent& e);
-	void OnMiddleDown(wxMouseEvent& e);
-	void OnMiddleUp(wxMouseEvent& e);
-	void OnRightDown(wxMouseEvent& e);
-	void OnRightUp(wxMouseEvent& e);
-	void OnMotion(wxMouseEvent& e);
-	void OnWheel(wxMouseEvent& e);
+  void OnPaint(wxPaintEvent& event);
+  void OnSize(wxSizeEvent& event);
+  void OnEraseBackground(wxEraseEvent& event);
 
-	void Invalidate();
-private:
-	float rotX;
-	float rotY;
-	float distance;
-	long lastx;
-	long lasty;
-	bool down;
-	Data* mData;
-	DECLARE_EVENT_TABLE()
+  void OnLeftDown(wxMouseEvent& e);
+  void OnLeftUp(wxMouseEvent& e);
+  void OnMiddleDown(wxMouseEvent& e);
+  void OnMiddleUp(wxMouseEvent& e);
+  void OnRightDown(wxMouseEvent& e);
+  void OnRightUp(wxMouseEvent& e);
+  void OnMotion(wxMouseEvent& e);
+  void OnWheel(wxMouseEvent& e);
+
+  void Invalidate();
+
+ private:
+  float rotX;
+  float rotY;
+  float distance;
+  long lastx;
+  long lasty;
+  bool down;
+  Data* mData;
+  DECLARE_EVENT_TABLE()
 };
 
 #endif

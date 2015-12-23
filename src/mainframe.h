@@ -13,69 +13,66 @@ class ConsoleDlg;
 class ScriptLibrary;
 
 #ifdef _UNICODE
-	typedef std::wstring string;
+typedef std::wstring string;
 #else
-	typedef std::string string;
+typedef std::string string;
 #endif
 
 typedef cml::vector3f vec3;
 
-class Face
-{
-public:
-	std::vector<int> indices;
+class Face {
+ public:
+  std::vector<int> indices;
 };
 
-class Mesh
-{
-public:
-	std::string name;
-	std::vector<vec3> vertices;
-	std::vector<vec3> normals;
-	std::vector<Face> faces;
+class Mesh {
+ public:
+  std::string name;
+  std::vector<vec3> vertices;
+  std::vector<vec3> normals;
+  std::vector<Face> faces;
 };
 
-class Data
-{
-public:
-	std::vector<Mesh> meshes;
-	void import(const std::string& path);
-	void render();
+class Data {
+ public:
+  std::vector<Mesh> meshes;
+  void import(const std::string& path);
+  void render();
 };
 
-class MainFrame : public wxFrame
-{
-public:
-	MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
-	~MainFrame();
+class MainFrame : public wxFrame {
+ public:
+  MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+  ~MainFrame();
 
-	void RunCommand(wxCommandEvent& event);
-	void OnActivated(wxActivateEvent& evt);
+  void RunCommand(wxCommandEvent& event);
+  void OnActivated(wxActivateEvent& evt);
 
-	void addResponse(int id, const string& cmd);
+  void addResponse(int id, const string& cmd);
 
-	void ShowHideConsole();
+  void ShowHideConsole();
 
-	void addLog(const wxString& str);
+  void addLog(const wxString& str);
 
-	Data& getData();
+  Data& getData();
 
-	static MainFrame* Get();
-private:
-	static MainFrame* sInstance;
+  static MainFrame* Get();
 
-	Data mData;
-	View* mView;
+ private:
+  static MainFrame* sInstance;
 
-	string getResponse(int id) const;
+  Data mData;
+  View* mView;
 
-	typedef std::map<int, string> IdCmdMap;
-	IdCmdMap mCommands;
+  string getResponse(int id) const;
 
-	bool loadGui(const string& file);
+  typedef std::map<int, string> IdCmdMap;
+  IdCmdMap mCommands;
 
-	ConsoleDlg* mConsole;
-	ScriptLibrary* mScripts;
+  bool loadGui(const string& file);
+
+  ConsoleDlg* mConsole;
+  ScriptLibrary* mScripts;
 };
 
 #endif
