@@ -38,4 +38,4 @@ if(BUILD_USE_DOXYGEN)
 					   COMMENT "Running Doxygen" VERBATIM)
 endif(BUILD_USE_DOXYGEN)
 
-target_link_libraries(simo3d ${OPENGL_LIBRARIES} ${wxWidgets_LIBRARIES} )
+target_link_libraries(simo3d ${OPENGL_LIBRARIES} ${wxWidgets_LIBRARIES} ${ASSIMP_LIBRARIES} )

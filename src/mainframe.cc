@@ -6,9 +6,9 @@
 #include <wx/stdpaths.h>
 #include "ConsoleDlg.h"
 
-#include <assimp.hpp>
-#include <aiScene.h>
-#include <aiPostProcess.h>
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
 
 enum { ID_Quit = 1, ID_About };
 
@@ -45,28 +45,14 @@ Data& currentfile() { return MainFrame::Get()->getData(); }
 }
 }
 
-BOOST_PYTHON_MODULE(simocore) {
-  using namespace boost::python;
+namespace {
   using namespace simodetail;
 
-#define DEF(x) def(#x, x)
-  DEF(msg);
-  DEF(yesno);
-  DEF(openfile);
-  DEF(closemain);
-  DEF(showconsole);
-  DEF(reloadscripts);
-  def("currentfile",
-      make_function(currentfile,
-                    return_value_policy<reference_existing_object>()));
-
-  class_<Data>("Data").def("importfile", &Data::import);
-}
-
-void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
-  t.reserve(c);
-  for (unsigned i = 0; i < c; ++i) {
-    t.push_back(vec3(s[i].x, s[i].y, s[i].z));
+  void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
+    t.reserve(c);
+    for (unsigned i = 0; i < c; ++i) {
+      t.push_back(vec3(s[i].x, s[i].y, s[i].z));
+    }
   }
 }
 
@@ -110,8 +96,8 @@ void Data::import(const std::string& path) {
 
 void Data::render() {
   // glColor3f(1, 0, 0);
-  BOOST_FOREACH (const Mesh& m, meshes) {
-    BOOST_FOREACH (const Face& f, m.faces) {
+  for (const Mesh& m: meshes) {
+    for (const Face& f: m.faces) {
       int type = GL_POINTS;
 
       switch (f.indices.size()) {
@@ -130,7 +116,7 @@ void Data::render() {
       }
 
       glBegin(type);
-      BOOST_FOREACH (int i, f.indices) {
+      for (int i: f.indices) {
         if (m.normals.empty() == false) {
           glNormal3fv(m.normals[i].data());
         }
@@ -159,7 +145,7 @@ MainFrame::~MainFrame() {
 
   // should this be done? boost documentation says no, but doing this means less
   // memleaks
-  Py_Finalize();
+  // Py_Finalize();
 }
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
@@ -171,27 +157,27 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   assert(sInstance == 0);
   sInstance = this;
 
-  PyImport_AppendInittab("simocore", PyInit_simocore);
-  PyImport_AppendInittab("emb", emb::PyInit_emb);
-  Py_Initialize();
-  PyImport_ImportModule("emb");
+  // PyImport_AppendInittab("simocore", PyInit_simocore);
+  // PyImport_AppendInittab("emb", emb::PyInit_emb);
+  // Py_Initialize();
+  // PyImport_ImportModule("emb");
 
   Console_Begin();
 
   wxString file = wxStandardPaths::Get().GetPluginsDir() + "/gui/default.info";
   mConsole = new ConsoleDlg(0);
-  mScripts = new ScriptLibrary(mConsole);
+  // mScripts = new ScriptLibrary(mConsole);
 
-  mScripts->init();
+  // mScripts->init();
 
-  if (mScripts->hasErrors()) {
+  /*if (mScripts->hasErrors()) {
     wxMessageBox("Failed to compile all scripts", "SiMo error",
                  wxOK | wxICON_ERROR, this);
     Close();
-  }
+  }*/
 
-  if (false == loadGui(WX_CSTR(file))) {
-    wxMessageBox("Failed to load gui from " + string(WX_CSTR(file)),
+  if (false == loadGui(file.c_str().AsWChar())) {
+    wxMessageBox("Failed to load gui from " + string(file.c_str().AsWChar()),
                  "SiMo error", wxOK | wxICON_ERROR, this);
     Close();
   }
@@ -291,7 +277,7 @@ bool MainFrame::loadGui(const string& file) {
     const ptree& menuContainerEl = root.get_child(_T("menus"));
     {
       wxMenuBar* menuBar = new wxMenuBar;
-      BOOST_FOREACH (const ptree::value_type& menuEl, menuContainerEl) {
+      for (const ptree::value_type& menuEl: menuContainerEl) {
         string name = _T("No Title");
         wxMenu* m = loadMenu(this, menuEl.second, &idg, &name);
         menuBar->Append(m, name);
@@ -323,7 +309,7 @@ void MainFrame::RunCommand(wxCommandEvent& ev) {
   if (false == ok) {
     wxMessageBox("Failed to sucessfully run command, see console for details",
                  "SiMo error", wxOK | wxICON_ERROR, this);
-    mScripts->clearErrors();
+    // mScripts->clearErrors();
   }
   mView->Invalidate();
 }
@@ -332,11 +318,13 @@ void MainFrame::OnActivated(wxActivateEvent& evt) {
   // check if it lost focus
   if (evt.GetActive() == false) return;
   evt.Skip();
+  /*
   mScripts->reload();
   if (mScripts->hasErrors()) {
     mScripts->clearErrors();
     wxMessageBox("Failed to reload scripts, see console for details",
                  "SiMo error", wxOK | wxICON_ERROR, this);
   }
+  */
   // addLog("app got focus");
 }

@@ -6,11 +6,13 @@ project(simo3d)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
 
 option(BUILD_USE_CLANG_FORMAT "Add clang format to the build" ON)
 option(BUILD_USE_CPPLINT "Add cpplint to the build" ON)
 option(BUILD_USE_DOXYGEN "Add doxygen to the build" ON)
+
+find_package(AssImp REQUIRED)
 
 
 # compiler flags
@@ -53,6 +55,8 @@ message(STATUS "wxWidgets_USE_FILE = ${wxWidgets_USE_FILE}")
 include_directories(${CMAKE_SOURCE_DIR})
 
 
+message(STATUS "Including Assimp ${ASSIMP_INCLUDE_DIR}")
+include_directories(${ASSIMP_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(src)
