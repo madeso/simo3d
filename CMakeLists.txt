@@ -11,7 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(BUILD_USE_CLANG_FORMAT "Add clang format to the build" ON)
 option(BUILD_USE_CPPLINT "Add cpplint to the build" ON)
 option(BUILD_USE_DOXYGEN "Add doxygen to the build" ON)
-option(BUILD_USE_CPPCHECK "run cppcheck on all source" ON)
 
 
 # compiler flags
@@ -40,6 +39,7 @@ SET(wxWidgets_USE_STATIC, ON)
 
 find_package(wxWidgets COMPONENTS core base)
 include( "${wxWidgets_USE_FILE}" )
+include_directories( "external/CML-1_0_4" )
 
 message(STATUS "wxWidgets_FOUND = ${wxWidgets_FOUND}")
 message(STATUS "wxWidgets_INCLUDE_DIRS = ${wxWidgets_INCLUDE_DIRS}")
