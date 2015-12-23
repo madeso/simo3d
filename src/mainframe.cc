@@ -2,21 +2,13 @@
 #include "view.h"
 
 #include <string>
-#include <boost/foreach.hpp>
 
 #include <wx/stdpaths.h>
 #include "ConsoleDlg.h"
-#include "ScriptLibrary.h"
-
-#include "ptree.h"
-
-#include "simopython.h"
-#include "emb.h"
 
 #include <assimp.hpp>
 #include <aiScene.h>
 #include <aiPostProcess.h>
-#pragma comment(lib, "assimp.lib")
 
 enum { ID_Quit = 1, ID_About };
 

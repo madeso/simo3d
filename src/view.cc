@@ -23,8 +23,8 @@ END_EVENT_TABLE()
 
 View::View(wxWindow* parent, Data* data, wxWindowID id, const wxPoint& pos,
            const wxSize& size, long style, const wxString& name)
-    : wxGLCanvas(parent, (wxGLCanvas*)NULL, id, pos, size,
-                 style | wxFULL_REPAINT_ON_RESIZE, name),
+    : wxGLCanvas(parent, id, 0, pos, size, style | wxFULL_REPAINT_ON_RESIZE,
+                 name),
       mData(data),
       rotX(0),
       rotY(0),
@@ -75,11 +75,13 @@ void View::OnWheel(wxMouseEvent& e) {
 void View::OnPaint(wxPaintEvent& WXUNUSED(event)) {
   wxPaintDC dc(this);
 
-#ifndef __WXMOTIF__
-  if (!GetContext()) return;
-#endif
+  /*
+  #ifndef __WXMOTIF__
+    if (!GetContext()) return;
+  #endif
+    */
 
-  SetCurrent();
+  // SetCurrent();
   // Init OpenGL once, but after SetCurrent
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_LIGHTING);
@@ -122,16 +124,16 @@ void View::OnPaint(wxPaintEvent& WXUNUSED(event)) {
 
 void View::OnSize(wxSizeEvent& event) {
   // this is also necessary to update the context on some platforms
-  wxGLCanvas::OnSize(event);
+  // wxGLCanvas::OnSize(event);
 
   // set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
   int w, h;
   GetClientSize(&w, &h);
 #ifndef __WXMOTIF__
-  if (GetContext())
+// if (GetContext())
 #endif
   {
-    SetCurrent();
+    // SetCurrent();
     glViewport(0, 0, (GLint)w, (GLint)h);
   }
 }
