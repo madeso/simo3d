@@ -12,12 +12,6 @@ class View;
 class ConsoleDlg;
 class ScriptLibrary;
 
-#ifdef _UNICODE
-typedef std::wstring string;
-#else
-typedef std::string string;
-#endif
-
 typedef cml::vector3f vec3;
 
 class Face {
@@ -48,7 +42,7 @@ class MainFrame : public wxFrame {
   void RunCommand(wxCommandEvent& event);
   void OnActivated(wxActivateEvent& evt);
 
-  void addResponse(int id, const string& cmd);
+  void addResponse(int id, const std::string& cmd);
 
   void ShowHideConsole();
 
@@ -64,12 +58,12 @@ class MainFrame : public wxFrame {
   Data mData;
   View* mView;
 
-  string getResponse(int id) const;
+  std::string getResponse(int id) const;
 
-  typedef std::map<int, string> IdCmdMap;
+  typedef std::map<int, std::string> IdCmdMap;
   IdCmdMap mCommands;
 
-  bool loadGui(const string& file);
+  bool loadGui(const std::string& file);
 
   ConsoleDlg* mConsole;
   ScriptLibrary* mScripts;

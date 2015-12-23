@@ -6,9 +6,12 @@
 #include <wx/stdpaths.h>
 #include "ConsoleDlg.h"
 
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
+#include <assimp/Importer.hpp>   // C++ importer interface
+#include <assimp/scene.h>        // Output data structure
+#include <assimp/postprocess.h>  // Post processing flags
+
+#include <google/protobuf/message.h>
+#include <wx/filename.h>
 
 enum { ID_Quit = 1, ID_About };
 
@@ -46,14 +49,14 @@ Data& currentfile() { return MainFrame::Get()->getData(); }
 }
 
 namespace {
-  using namespace simodetail;
+using namespace simodetail;
 
-  void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
-    t.reserve(c);
-    for (unsigned i = 0; i < c; ++i) {
-      t.push_back(vec3(s[i].x, s[i].y, s[i].z));
-    }
+void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
+  t.reserve(c);
+  for (unsigned i = 0; i < c; ++i) {
+    t.push_back(vec3(s[i].x, s[i].y, s[i].z));
   }
+}
 }
 
 void Data::import(const std::string& path) {
@@ -96,8 +99,8 @@ void Data::import(const std::string& path) {
 
 void Data::render() {
   // glColor3f(1, 0, 0);
-  for (const Mesh& m: meshes) {
-    for (const Face& f: m.faces) {
+  for (const Mesh& m : meshes) {
+    for (const Face& f : m.faces) {
       int type = GL_POINTS;
 
       switch (f.indices.size()) {
@@ -116,7 +119,7 @@ void Data::render() {
       }
 
       glBegin(type);
-      for (int i: f.indices) {
+      for (int i : f.indices) {
         if (m.normals.empty() == false) {
           glNormal3fv(m.normals[i].data());
         }
@@ -176,8 +179,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
     Close();
   }*/
 
-  if (false == loadGui(file.c_str().AsWChar())) {
-    wxMessageBox("Failed to load gui from " + string(file.c_str().AsWChar()),
+  if (false == loadGui(file.c_str().AsChar())) {
+    wxMessageBox("Failed to load gui from " + std::string(file.c_str().AsChar()),
                  "SiMo error", wxOK | wxICON_ERROR, this);
     Close();
   }
@@ -213,11 +216,45 @@ class IdGenerator {
   int mId;
 };
 
-wxMenu* loadMenu(MainFrame* mf, const ptree& menuEl, IdGenerator* idg,
+wxString LoadProtoJson(google::protobuf::Message* message,
+                       const wxFileName& file_name) {
+  if (file_name.FileExists() == false) return "";
+
+  const wxString path = file_name.GetFullPath();
+  if (file_name.IsFileReadable() == false) {
+    return "file is not readable";
+  }
+
+  std::string err;
+  int load_result = pbjson::json2pb_file(path.c_str().AsChar(), message, err);
+  if (load_result < 0) {
+    return err.c_str();
+  }
+
+  return "";
+}
+
+wxString SaveProtoJson(const google::protobuf::Message& t,
+                       const wxFileName& file_name) {
+  if (false == VerifyFileForWriting(file_name)) {
+    return "Unable to verify file";
+  }
+
+  wxString path = file_name.GetFullPath();
+
+  bool write_result = pbjson::pb2json_file(&t, path.c_str().AsChar(), true);
+  if (write_result == false) {
+    return "Unable to write to file";
+  }
+
+  return "";
+}
+
+wxMenu* loadMenu(MainFrame* mf, const gui::Menu& menuEl, IdGenerator* idg,
                  string* title) {
   wxMenu* menu = new wxMenu;
 
-  *title = menuEl.get<string>(_T("title"));
+  *title = menuEl.title();
 
   BOOST_FOREACH (const ptree::value_type& itemEl,
                  menuEl.get_child(_T("childs"))) {
@@ -260,35 +297,27 @@ wxMenu* loadMenu(MainFrame* mf, const ptree& menuEl, IdGenerator* idg,
 bool MainFrame::loadGui(const string& file) {
   IdGenerator idg;
 
-  try {
-    ifstream f;
-    f.open(file.c_str());
-
-    if (f.good() == false) {
-      addLog("Unable to open " + file);
-      return false;
-    }
-
-    ptree doc;
-    read_info(f, doc);
-
-    const ptree& root = doc.get_child(_T("gui"));
-
-    const ptree& menuContainerEl = root.get_child(_T("menus"));
-    {
-      wxMenuBar* menuBar = new wxMenuBar;
-      for (const ptree::value_type& menuEl: menuContainerEl) {
-        string name = _T("No Title");
-        wxMenu* m = loadMenu(this, menuEl.second, &idg, &name);
-        menuBar->Append(m, name);
-      }
-      SetMenuBar(menuBar);
-    }
-    return true;
-  } catch (const std::exception& e) {
-    addLog("Unable to parse " + file + ", : " + e.what());
+  simo::Gui gui;
+  wxString r = LoadProtoJson(&gui, file);
+  if (r.IsEmpty() == false) {
+    addLog(r);
     return false;
   }
+
+  wxMenuBar* menuBar = nullptr;
+
+  for (gui::Menu& menu : gui.menu()) {
+    if (menuBar == nullptr) menuBar = new wxMenuBar;
+    string name = _T("No Title");
+    wxMenu* m = loadMenu(this, menu, &idg, &name);
+    menuBar->Append(m, name);
+  }
+
+  if (menuBar != nullptr) {
+    SetMenuBar(menuBar);
+  }
+
+  return true;
 }
 
 void MainFrame::addResponse(int id, const string& cmd) {

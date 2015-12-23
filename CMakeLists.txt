@@ -14,6 +14,8 @@ option(BUILD_USE_DOXYGEN "Add doxygen to the build" ON)
 
 find_package(AssImp REQUIRED)
 
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 # compiler flags
 if(${MSVC})

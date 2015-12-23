@@ -1,10 +1,22 @@
 FILE(GLOB app_src_glob *.cc;*.h;*.inl)
-set(app_src ${app_src_glob} "${PROJECT_BINARY_DIR}/simo3d-config.h")
+
+PROTOBUF_GENERATE_CPP(GUI_PROTO_SRCS GUI_PROTO_HDRS gui.proto)
+set(app_src ${app_src_glob} "${PROJECT_BINARY_DIR}/simo3d-config.h" gui.proto)
+
+set(pbjson_src
+	${CMAKE_SOURCE_DIR}/external/pbjson/src/pbjson.cpp
+	${CMAKE_SOURCE_DIR}/external/pbjson/src/pbjson.hpp
+	${CMAKE_SOURCE_DIR}/external/pbjson/src/bin2ascii.h
+	)
 
 source_group("" FILES ${app_src})
+source_group("generated" FILES ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS})
+source_group("external" FILES ${pbjson_src})
 source_group(cmake FILES "${PROJECT_SOURCE_DIR}/simo3d-config-in.h")
 
-set(all_src ${app_src} "${PROJECT_SOURCE_DIR}/simo3d-config-in.h" ${src_glew} ${src_soil} ${src_jsoncpp} ${src_lua})
+set(all_src ${app_src} "${PROJECT_SOURCE_DIR}/simo3d-config-in.h" ${src_glew} ${src_soil} ${src_jsoncpp} ${src_lua} ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS}  ${pbjson_src})
+
+include_directories(${CMAKE_SOURCE_DIR}/external/pbjson/src/)
 
 message(STATUS "Linking with OpenGL ${OPENGL_LIBRARIES}")
 

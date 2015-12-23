@@ -1,0 +1,21 @@
+package simo;
+
+message MenuButton {
+	optional string display = 1;
+	optional string shortcut = 2;
+	optional string cmd = 3;
+}
+
+message MenuItem {
+	optional MenuButton button = 1;
+	optional Menu submenu = 2;
+	optional bool seperator = 3;
+}
+
+message Menu {
+	optional string title = 1;
+}
+
+message Gui {
+	repeated Menu menu = 1;
+}
