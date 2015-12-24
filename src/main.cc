@@ -13,7 +13,7 @@ IMPLEMENT_APP(SimoApp)
 
 bool SimoApp::OnInit() {
   MainFrame *frame =
-      new MainFrame(_("SiMo 3d"), wxPoint(50, 50), wxSize(450, 350));
+      new MainFrame("SiMo 3d", wxPoint(50, 50), wxSize(450, 350));
 
   frame->Show(true);
   SetTopWindow(frame);

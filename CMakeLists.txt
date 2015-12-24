@@ -17,10 +17,21 @@ find_package(AssImp REQUIRED)
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
+# hack ot tell wxwidgets we have full compiler support
+ADD_DEFINITIONS(/DHAVE_TYPE_TRAITS)
+ADD_DEFINITIONS(/DHAVE_TR1_TYPE_TRAITS)
+
+if(${APPLE})
+	# disabling http://stackoverflow.com/questions/32626171/xcode-7-how-to-suppress-warning-overrides-a-member-function-but-is-not-marked
+	# that apple-clang spews out for wx headers
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+endif()
+
 # compiler flags
 if(${MSVC})
 	ADD_DEFINITIONS(/D _CRT_SECURE_NO_WARNINGS)
-	
+
 	# character set to Not Set=ASCII/SBCS http://public.kitware.com/Bug/view.php?id=12189
 	ADD_DEFINITIONS(/D _SBCS)
 endif()
@@ -41,7 +52,7 @@ configure_file ("${PROJECT_SOURCE_DIR}/simo3d-config-in.h" "${PROJECT_BINARY_DIR
 # wxWidgets_USE_UNIVERSAL
 SET(wxWidgets_USE_STATIC, ON)
 
-find_package(wxWidgets COMPONENTS core base)
+find_package(wxWidgets COMPONENTS core base gl)
 include( "${wxWidgets_USE_FILE}" )
 include_directories( "external/CML-1_0_4" )
 

@@ -6,14 +6,18 @@ message MenuButton {
 	optional string cmd = 3;
 }
 
+message Separator {
+}
+
 message MenuItem {
 	optional MenuButton button = 1;
-	optional Menu submenu = 2;
-	optional bool seperator = 3;
+	optional Menu menu = 2;
+	optional Separator seperator = 3;
 }
 
 message Menu {
 	optional string title = 1;
+	repeated MenuItem items = 2;
 }
 
 message Gui {

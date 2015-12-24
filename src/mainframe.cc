@@ -12,6 +12,8 @@
 
 #include <google/protobuf/message.h>
 #include <wx/filename.h>
+#include <external/pbjson/src/pbjson.hpp>
+#include "gui.pb.h"
 
 enum { ID_Quit = 1, ID_About };
 
@@ -33,7 +35,7 @@ std::string openfile(const std::string& title, const std::string& pattern) {
   if (openFileDialog.ShowModal() == wxID_CANCEL)
     return "";
   else
-    return openFileDialog.GetPath();
+    return openFileDialog.GetPath().c_str().AsChar();
 }
 
 void closemain() { MainFrame::Get()->Close(true); }
@@ -66,11 +68,11 @@ void Data::import(const std::string& path) {
                 aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
 
   if (!scene) {
-    throw std::exception(importer.GetErrorString());
+    throw std::runtime_error(importer.GetErrorString());
   }
 
   if (scene->HasMeshes() == false) {
-    throw std::exception("non meshes not currently supported");
+    throw std::runtime_error("non meshes not currently supported");
   }
 
   meshes.clear();
@@ -143,7 +145,6 @@ MainFrame::~MainFrame() {
   sInstance = 0;
   mConsole->Destroy();
 
-  delete mScripts;
   delete mConsole;
 
   // should this be done? boost documentation says no, but doing this means less
@@ -217,14 +218,7 @@ class IdGenerator {
 };
 
 wxString LoadProtoJson(google::protobuf::Message* message,
-                       const wxFileName& file_name) {
-  if (file_name.FileExists() == false) return "";
-
-  const wxString path = file_name.GetFullPath();
-  if (file_name.IsFileReadable() == false) {
-    return "file is not readable";
-  }
-
+                       const wxString& path) {
   std::string err;
   int load_result = pbjson::json2pb_file(path.c_str().AsChar(), message, err);
   if (load_result < 0) {
@@ -235,12 +229,7 @@ wxString LoadProtoJson(google::protobuf::Message* message,
 }
 
 wxString SaveProtoJson(const google::protobuf::Message& t,
-                       const wxFileName& file_name) {
-  if (false == VerifyFileForWriting(file_name)) {
-    return "Unable to verify file";
-  }
-
-  wxString path = file_name.GetFullPath();
+                       const wxString& path) {
 
   bool write_result = pbjson::pb2json_file(&t, path.c_str().AsChar(), true);
   if (write_result == false) {
@@ -250,25 +239,24 @@ wxString SaveProtoJson(const google::protobuf::Message& t,
   return "";
 }
 
-wxMenu* loadMenu(MainFrame* mf, const gui::Menu& menuEl, IdGenerator* idg,
-                 string* title) {
+wxMenu* loadMenu(MainFrame* mf, const simo::Menu& menuEl, IdGenerator* idg,
+                 std::string* title) {
   wxMenu* menu = new wxMenu;
 
   *title = menuEl.title();
 
-  BOOST_FOREACH (const ptree::value_type& itemEl,
-                 menuEl.get_child(_T("childs"))) {
-    const string type = itemEl.first;
+  for (const simo::MenuItem& itemEl:
+                 menuEl.items()) {
+    if (itemEl.has_button()) {
+      auto& button = itemEl.button();
+      std::string display = button.display();
 
-    if (type == "button") {
-      string display = itemEl.second.get<string>(_T("display"));
-
-      string shortcut = itemEl.second.get<string>(_T("shortcut"), _T(""));
+      std::string shortcut = button.shortcut();
       if (shortcut.empty() == false) {
         display += "\t" + shortcut;
       }
 
-      string cmd = itemEl.second.get<string>(_T("cmd"));
+      std::string cmd = button.cmd();
 
       int id = idg->generate();
 
@@ -276,29 +264,29 @@ wxMenu* loadMenu(MainFrame* mf, const gui::Menu& menuEl, IdGenerator* idg,
                   (wxObjectEventFunction)&MainFrame::RunCommand);
       mf->addResponse(id, cmd);
       menu->Append(id, display);
-    } else if (type == "submenu") {
-      string display;
-      wxMenu* sub = loadMenu(mf, itemEl.second, idg, &display);
+    } else if (itemEl.has_menu()) {
+      std::string display;
+      wxMenu* sub = loadMenu(mf, itemEl.menu(), idg, &display);
       if (display.empty()) {
         mf->addLog("missing title in submenu");
-        display = _T("EMPTY");
+        display = "EMPTY";
       }
       menu->Append(0, display, sub);
-    } else if (type == "seperator") {
+    } else if (itemEl.has_seperator()) {
       menu->Append(wxID_SEPARATOR, "-", "", wxITEM_SEPARATOR);
     } else {
-      mf->addLog("Unrecognized type " + type);
+      mf->addLog("Unrecognized type");
     }
   }
 
   return menu;
 }
 
-bool MainFrame::loadGui(const string& file) {
+bool MainFrame::loadGui(const std::string& file) {
   IdGenerator idg;
 
   simo::Gui gui;
-  wxString r = LoadProtoJson(&gui, file);
+  wxString r = LoadProtoJson(&gui, file.c_str());
   if (r.IsEmpty() == false) {
     addLog(r);
     return false;
@@ -306,9 +294,9 @@ bool MainFrame::loadGui(const string& file) {
 
   wxMenuBar* menuBar = nullptr;
 
-  for (gui::Menu& menu : gui.menu()) {
+  for (const simo::Menu& menu : gui.menu()) {
     if (menuBar == nullptr) menuBar = new wxMenuBar;
-    string name = _T("No Title");
+    std::string name = "No Title";
     wxMenu* m = loadMenu(this, menu, &idg, &name);
     menuBar->Append(m, name);
   }
@@ -320,20 +308,20 @@ bool MainFrame::loadGui(const string& file) {
   return true;
 }
 
-void MainFrame::addResponse(int id, const string& cmd) {
+void MainFrame::addResponse(int id, const std::string& cmd) {
   mCommands.insert(std::make_pair(id, cmd));
 }
 
-string MainFrame::getResponse(int id) const {
+std::string MainFrame::getResponse(int id) const {
   IdCmdMap::const_iterator res = mCommands.find(id);
   if (res == mCommands.end())
-    return _T("");
+    return "";
   else
     return res->second;
 }
 
 void MainFrame::RunCommand(wxCommandEvent& ev) {
-  const string res = getResponse(ev.GetId());
+  const std::string res = getResponse(ev.GetId());
   bool ok = mConsole->run(res);
   if (false == ok) {
     wxMessageBox("Failed to sucessfully run command, see console for details",

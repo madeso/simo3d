@@ -1,5 +1,6 @@
 FILE(GLOB app_src_glob *.cc;*.h;*.inl)
 
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 PROTOBUF_GENERATE_CPP(GUI_PROTO_SRCS GUI_PROTO_HDRS gui.proto)
 set(app_src ${app_src_glob} "${PROJECT_BINARY_DIR}/simo3d-config.h" gui.proto)
 
@@ -50,4 +51,4 @@ if(BUILD_USE_DOXYGEN)
 					   COMMENT "Running Doxygen" VERBATIM)
 endif(BUILD_USE_DOXYGEN)
 
-target_link_libraries(simo3d ${OPENGL_LIBRARIES} ${wxWidgets_LIBRARIES} ${ASSIMP_LIBRARIES} )
+target_link_libraries(simo3d ${OPENGL_LIBRARIES} ${wxWidgets_LIBRARIES} ${ASSIMP_LIBRARIES} ${PROTOBUF_LIBRARIES} )

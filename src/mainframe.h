@@ -10,7 +10,6 @@
 
 class View;
 class ConsoleDlg;
-class ScriptLibrary;
 
 typedef cml::vector3f vec3;
 
@@ -66,7 +65,6 @@ class MainFrame : public wxFrame {
   bool loadGui(const std::string& file);
 
   ConsoleDlg* mConsole;
-  ScriptLibrary* mScripts;
 };
 
 #endif
