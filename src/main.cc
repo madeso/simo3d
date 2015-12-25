@@ -1,4 +1,4 @@
-#include <wx/wx.h>
+#include "wx.h"
 #include "mainframe.h"
 
 #if !wxUSE_GLCANVAS

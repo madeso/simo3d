@@ -1,7 +1,7 @@
 #ifndef SIMO_MAINFRAME_HPP
 #define SIMO_MAINFRAME_HPP
 
-#include <wx/wx.h>
+#include "wx.h"
 #include <string>
 #include <map>
 

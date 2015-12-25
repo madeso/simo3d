@@ -8,6 +8,7 @@
 #ifndef __generated__
 #define __generated__
 
+#include "wx.h"
 #include <wx/string.h>
 #include <wx/textctrl.h>
 #include <wx/gdicmn.h>

@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules"
 
 option(BUILD_USE_CLANG_FORMAT "Add clang format to the build" ON)
 option(BUILD_USE_CPPLINT "Add cpplint to the build" ON)
-option(BUILD_USE_DOXYGEN "Add doxygen to the build" ON)
+option(BUILD_USE_DOXYGEN "Add doxygen to the build" OFF)
 
 find_package(AssImp REQUIRED)
 
@@ -18,8 +18,8 @@ find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
 # hack ot tell wxwidgets we have full compiler support
-ADD_DEFINITIONS(/DHAVE_TYPE_TRAITS)
-ADD_DEFINITIONS(/DHAVE_TR1_TYPE_TRAITS)
+# ADD_DEFINITIONS(/DHAVE_TYPE_TRAITS)
+# ADD_DEFINITIONS(/DHAVE_TR1_TYPE_TRAITS)
 
 if(${APPLE})
 	# disabling http://stackoverflow.com/questions/32626171/xcode-7-how-to-suppress-warning-overrides-a-member-function-but-is-not-marked

@@ -1,7 +1,7 @@
 #ifndef SIMO_VIEW_HPP
 #define SIMO_VIEW_HPP
 
-//#include <wx/wx.h>
+#include "wx.h"
 #include <wx/glcanvas.h>
 
 #include "mainframe.h"
