@@ -1,5 +1,9 @@
 FILE(GLOB app_src_glob *.cc;*.h;*.inl)
 
+find_package(wxWidgets COMPONENTS core base gl)
+include( "${wxWidgets_USE_FILE}" )
+
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 PROTOBUF_GENERATE_CPP(GUI_PROTO_SRCS GUI_PROTO_HDRS gui.proto)
 set(app_src ${app_src_glob} "${PROJECT_BINARY_DIR}/simo3d-config.h" gui.proto)
@@ -25,7 +29,7 @@ if(BUILD_USE_DOXYGEN)
 	message(STATUS "Doxygen exe is ${DOXYGEN_EXECUTABLE} with args ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile in dir ${CMAKE_SOURCE_DIR}/simo3d")
 endif(BUILD_USE_DOXYGEN)
 
-add_executable(simo3d WIN32 ${all_src})
+add_executable(simo3d WIN32 MACOSX_BUNDLE ${all_src})
 
 if(BUILD_USE_CLANG_FORMAT)
 	add_custom_command(TARGET simo3d

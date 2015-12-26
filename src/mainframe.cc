@@ -154,7 +154,7 @@ MainFrame::~MainFrame() {
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                      const wxSize& size)
-    : wxFrame(NULL, -1, title, pos, size) {
+    : wxFrame(nullptr, wxID_ANY, title, pos, size) {
   CreateStatusBar();
   SetStatusText(_("Welcome to SiMo!"));
 

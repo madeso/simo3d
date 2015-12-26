@@ -50,20 +50,9 @@ configure_file ("${PROJECT_SOURCE_DIR}/simo3d-config-in.h" "${PROJECT_BINARY_DIR
 # wxWidgets_USE_DEBUG
 # wxWidgets_USE_UNICODE
 # wxWidgets_USE_UNIVERSAL
-SET(wxWidgets_USE_STATIC, ON)
+# SET(wxWidgets_USE_STATIC, ON)
 
-find_package(wxWidgets COMPONENTS core base gl)
-include( "${wxWidgets_USE_FILE}" )
 include_directories( "external/CML-1_0_4" )
-
-message(STATUS "wxWidgets_FOUND = ${wxWidgets_FOUND}")
-message(STATUS "wxWidgets_INCLUDE_DIRS = ${wxWidgets_INCLUDE_DIRS}")
-message(STATUS "wxWidgets_LIBRARIES = ${wxWidgets_LIBRARIES}")
-message(STATUS "wxWidgets_LIBRARY_DIRS = ${wxWidgets_LIBRARY_DIRS}")
-message(STATUS "wxWidgets_DEFINITIONS = ${wxWidgets_DEFINITIONS}")
-message(STATUS "wxWidgets_DEFINITIONS_DEBUG = ${wxWidgets_DEFINITIONS_DEBUG}")
-message(STATUS "wxWidgets_CXX_FLAGS = ${wxWidgets_CXX_FLAGS}")
-message(STATUS "wxWidgets_USE_FILE = ${wxWidgets_USE_FILE}")
 
 include_directories(${CMAKE_SOURCE_DIR})
 
