@@ -30,6 +30,13 @@ if(BUILD_USE_DOXYGEN)
 endif(BUILD_USE_DOXYGEN)
 
 add_executable(simo3d WIN32 MACOSX_BUNDLE ${all_src})
+set_target_properties( simo3d
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/dist"
+	DEBUG_OUTPUT_NAME "simo3d-debug"
+	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/dist"
+	RELEASE_OUTPUT_NAME "simo3d"
+)
 
 if(BUILD_USE_CLANG_FORMAT)
 	add_custom_command(TARGET simo3d
