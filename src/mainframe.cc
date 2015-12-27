@@ -168,7 +168,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
 
   Console_Begin();
 
-  wxString file = wxStandardPaths::Get().GetPluginsDir() + "/gui/default.info";
+  const wxString file =
+      wxStandardPaths::Get().GetResourcesDir() + "/gui/default.info";
   mConsole = new ConsoleDlg(0);
   // mScripts = new ScriptLibrary(mConsole);
 
@@ -181,9 +182,11 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   }*/
 
   if (false == loadGui(file.c_str().AsChar())) {
-    wxMessageBox("Failed to load gui from " + std::string(file.c_str().AsChar()),
-                 "SiMo error", wxOK | wxICON_ERROR, this);
+    wxMessageBox(
+        "Failed to load gui from " + std::string(file.c_str().AsChar()),
+        "SiMo error", wxOK | wxICON_ERROR, this);
     Close();
+    return;
   }
 
   mView = new View(this, &mData, wxID_ANY, wxDefaultPosition, wxDefaultSize);
@@ -230,7 +233,6 @@ wxString LoadProtoJson(google::protobuf::Message* message,
 
 wxString SaveProtoJson(const google::protobuf::Message& t,
                        const wxString& path) {
-
   bool write_result = pbjson::pb2json_file(&t, path.c_str().AsChar(), true);
   if (write_result == false) {
     return "Unable to write to file";
@@ -245,8 +247,7 @@ wxMenu* loadMenu(MainFrame* mf, const simo::Menu& menuEl, IdGenerator* idg,
 
   *title = menuEl.title();
 
-  for (const simo::MenuItem& itemEl:
-                 menuEl.items()) {
+  for (const simo::MenuItem& itemEl : menuEl.items()) {
     if (itemEl.has_button()) {
       auto& button = itemEl.button();
       std::string display = button.display();
