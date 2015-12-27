@@ -1,39 +1,36 @@
-gui
 {
-	menus
-	{
-		menu
+	"menu": [
 		{
-			title File
-			childs
-			{
-				submenu
-				{
-					title Sub
-					childs
-					{
-						button
-						{
-							display "Import..."
-							shortcut Ctrl+I
-							cmd "importfile()"
-						}
-						button
-						{
-							display Console
-							shortcut F2
-							cmd "simocore.showconsole()"
-						}
+			"title": "File",
+			"items": [
+				{ "menu": {
+						"title": "Sub",
+						"items":[
+							{
+								"button": {
+									"display": "Import...",
+									"shortcut": "Ctrl+I",
+									"cmd": "importfile()"
+								}
+							},
+							{
+								"button": {
+									"display": "Console",
+									"shortcut": "F2",
+									"cmd": "simocore.showconsole()"
+								}
+							}
+						]
+					}
+				},
+				{ "seperator": {} },
+				{ "button": {
+						"display": "Quit",
+						"shortcut": "Alt+F4",
+						"cmd": "simocore.closemain()"
 					}
 				}
-				seperator {}
-				button
-				{
-					display Quit
-					shortcut Alt+F4
-					cmd "simocore.closemain()"
-				}
-			}
+			]
 		}
-	}
+	]
 }
