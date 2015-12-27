@@ -33,9 +33,12 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
+#include "rapidjson/error/en.h"
 
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/filewritestream.h"
+
+#include <sstream>
 
 #define RETURN_ERR(id, cause)  do{\
                                   err = cause; \
@@ -44,6 +47,12 @@
 using namespace google::protobuf;
 namespace pbjson
 {
+  std::string ErrorInformation(const rapidjson::Document& d) {
+    std::ostringstream ss;
+    ss << d.GetErrorOffset() << ": " << GetParseError_En(d.GetParseError());
+    return ss.str();
+  }
+
     static rapidjson::Value *parse_msg(const Message *msg, rapidjson::Value::AllocatorType& allocator);
     static rapidjson::Value* field2json(const Message *msg, const FieldDescriptor *field,
             rapidjson::Value::AllocatorType& allocator)
@@ -580,7 +589,7 @@ namespace pbjson
         d.Parse<0>(json.c_str());
         if (d.HasParseError())
         {
-            err += d.GetParseError();
+            err += ErrorInformation(d);
             return ERR_INVALID_ARG;
         }
         int ret = jsonobject2pb(&d, msg, err);
@@ -605,7 +614,7 @@ namespace pbjson
       d.ParseStream<0>(is);
       if (d.HasParseError())
       {
-        err += d.GetParseError();
+        err += ErrorInformation(d);
         fclose(fp);
         return ERR_INVALID_ARG;
       }
