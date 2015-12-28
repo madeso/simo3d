@@ -6,6 +6,8 @@
 
 #include "wx.h"
 
+class Script;
+
 class ScriptEntry {
  public:
   ScriptEntry(const std::string& file, const wxDateTime& date);
@@ -23,7 +25,7 @@ class ScriptEntry {
 
 class ScriptLib {
  public:
-  ScriptLib();
+  explicit ScriptLib(Script* script);
 
   bool load(const std::string& file);
   bool reload();
@@ -31,6 +33,7 @@ class ScriptLib {
  private:
   bool compile(const std::string& file);
   std::vector<ScriptEntry> entries_;
+  Script* script_;
 };
 
 #endif

@@ -1,5 +1,7 @@
 #include "scriptlib.h"
 
+#include "script.h"
+
 #include <wx/filesys.h>
 
 namespace {
@@ -30,7 +32,7 @@ void ScriptEntry::set_date(const wxDateTime& d) { date_ = d; }
 
 //////////////////////////////////////////////////////////////////////////
 
-ScriptLib::ScriptLib() {}
+ScriptLib::ScriptLib(Script* script) : script_(script) {}
 
 bool ScriptLib::load(const std::string& file) {
   if (compile(file)) {
@@ -58,4 +60,6 @@ bool ScriptLib::reload() {
   return ret;
 }
 
-bool ScriptLib::compile(const std::string& file) { return false; }
+bool ScriptLib::compile(const std::string& file) {
+  return script_->RunFile(file);
+}

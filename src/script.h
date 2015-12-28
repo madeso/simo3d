@@ -8,7 +8,9 @@
 class Script {
  public:
   Script();
+
   bool RunCommand(const std::string& cmd);
+  bool RunFile(const std::string& file);
 
  private:
   sel::State state_;

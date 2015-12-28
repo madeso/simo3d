@@ -28,7 +28,9 @@ MainFrame::~MainFrame() {
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                      const wxSize& size)
-    : wxFrame(nullptr, wxID_ANY, title, pos, size) {
+    : wxFrame(nullptr, wxID_ANY, title, pos, size),
+      script_(),
+      library_(&script_) {
   CreateStatusBar();
   SetStatusText(_("Welcome to SiMo!"));
 
