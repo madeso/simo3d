@@ -6,7 +6,7 @@
 #include <map>
 
 #include "data.h"
-
+#include "scriptlib.h"
 #include "selene.h"
 
 class View;
@@ -43,6 +43,7 @@ class MainFrame : public wxFrame {
 
   sel::State state_;
   wxTextCtrl* log_;
+  ScriptLib library_;
 };
 
 #endif

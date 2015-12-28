@@ -61,14 +61,14 @@ wxMenu* loadMenu(MainFrame* mf, const simo::Menu& menuEl, IdGenerator* idg,
       std::string display;
       wxMenu* sub = loadMenu(mf, itemEl.menu(), idg, &display);
       if (display.empty()) {
-        // mf->addLog("missing title in submenu");
+        mf->AddLog("Missing title in submenu");
         display = "EMPTY";
       }
       menu->Append(0, display, sub);
     } else if (itemEl.has_seperator()) {
       menu->Append(wxID_SEPARATOR, "-", "", wxITEM_SEPARATOR);
     } else {
-      // mf->addLog("Unrecognized type");
+      mf->AddLog("Unrecognized type");
     }
   }
 
@@ -81,7 +81,7 @@ bool LoadGui(const std::string& file, MainFrame* frame) {
   simo::Gui gui;
   wxString r = LoadProtoJson(&gui, file.c_str());
   if (r.IsEmpty() == false) {
-    // addLog(r);
+    frame->AddLog(r.c_str().AsChar());
     return false;
   }
 

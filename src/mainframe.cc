@@ -61,16 +61,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
   sizer->Add(split, wxSizerFlags(1).Expand());
   this->SetSizer(sizer);
-  /*
-  wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-  sizer->Add(mView, wxSizerFlags(1).Expand());
-  sizer->Add(log_, wxSizerFlags(0).Expand());
-  this->SetSizer(sizer);
-  */
 
   Connect(wxEVT_ACTIVATE, wxActivateEventHandler(MainFrame::OnActivated));
-
-  AddLog("Hello world");
 }
 
 void MainFrame::AddLog(const std::string& str) {
@@ -106,12 +98,8 @@ void MainFrame::OnActivated(wxActivateEvent& evt) {
   if (evt.GetActive() == false) return;
   evt.Skip();
 
-  /*
-  mScripts->reload();
-  if (mScripts->hasErrors()) {
-    mScripts->clearErrors();
+  if (false == library_.reload()) {
     wxMessageBox("Failed to reload scripts, see console for details",
                  "SiMo error", wxOK | wxICON_ERROR, this);
   }
-  */
 }
