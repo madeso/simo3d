@@ -12,6 +12,9 @@ class Script {
   bool RunCommand(const std::string& cmd);
   bool RunFile(const std::string& file);
 
+  sel::State& state();
+  const sel::State& state() const;
+
  private:
   sel::State state_;
 };

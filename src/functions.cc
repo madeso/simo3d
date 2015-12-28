@@ -1,9 +1,8 @@
 #include "wx.h"
 #include "mainframe.h"
 #include "data.h"
+#include "script.h"
 
-namespace {
-namespace simodetail {
 void msg(const std::string& msg, const std::string& title) {
   wxMessageBox(msg, title, wxOK | wxICON_INFORMATION, MainFrame::Get());
 }
@@ -30,5 +29,13 @@ void reloadscripts() {
 }
 
 Data& currentfile() { return MainFrame::Get()->getData(); }
-}
+
+void LoadFunctions(Script* script) {
+  auto& s = script->state();
+
+  s["msg"] = &msg;
+  s["yesno"] = &yesno;
+  s["openfile"] = &openfile;
+  s["closemain"] = &closemain;
+  s["reloadscripts"] = &reloadscripts;
 }

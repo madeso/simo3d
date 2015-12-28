@@ -12,6 +12,7 @@
 
 #include "idgenerator.h"
 #include "gui.h"
+#include "functions.h"
 
 MainFrame* MainFrame::sInstance = nullptr;
 MainFrame* MainFrame::Get() {
@@ -65,6 +66,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   this->SetSizer(sizer);
 
   Connect(wxEVT_ACTIVATE, wxActivateEventHandler(MainFrame::OnActivated));
+
+  LoadFunctions(&script_);
 }
 
 void MainFrame::AddLog(const std::string& str) {
