@@ -4,7 +4,8 @@ find_package(wxWidgets COMPONENTS core base gl)
 include( "${wxWidgets_USE_FILE}" )
 
 FILE(GLOB lua_src_glob ${CMAKE_SOURCE_DIR}/external/lua-5.3.2/*.c)
-FILE(GLOB lua_hdr_glob ${CMAKE_SOURCE_DIR}/external/lua-5.3.2/*.yh)
+FILE(GLOB lua_hdr_glob ${CMAKE_SOURCE_DIR}/external/lua-5.3.2/*.h)
+include_directories(${CMAKE_SOURCE_DIR}/external/lua-5.3.2/)
 
 set(lua_src ${lua_src_glob} ${lua_hdr_glob})
 include_directories(${CMAKE_SOURCE_DIR}/external/selene/)

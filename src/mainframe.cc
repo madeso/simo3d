@@ -4,6 +4,7 @@
 #include <string>
 
 #include <wx/stdpaths.h>
+#include <wx/splitter.h>
 
 #include <google/protobuf/message.h>
 #include <wx/filename.h>
@@ -27,7 +28,7 @@ MainFrame::~MainFrame() {
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                      const wxSize& size)
-    : wxFrame(nullptr, wxID_ANY, title, pos, size) {
+    : wxFrame(nullptr, wxID_ANY, title, pos, size), state_(true) {
   CreateStatusBar();
   SetStatusText(_("Welcome to SiMo!"));
 
@@ -45,9 +46,36 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
     return;
   }
 
-  mView = new View(this, &mData);
+  wxSplitterWindow* split =
+      new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+                           wxSP_LIVE_UPDATE | wxSP_3DBORDER);
+  split->SetSashGravity(1.0);
+
+  mView = new View(split, &mData);
+
+  log_ = new wxTextCtrl(split, wxID_ANY, "", wxDefaultPosition, wxSize(0, 60),
+                        wxTE_READONLY | wxHSCROLL | wxTE_MULTILINE);
+
+  split->SplitHorizontally(mView, log_, 100);
+
+  wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+  sizer->Add(split, wxSizerFlags(1).Expand());
+  this->SetSizer(sizer);
+  /*
+  wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+  sizer->Add(mView, wxSizerFlags(1).Expand());
+  sizer->Add(log_, wxSizerFlags(0).Expand());
+  this->SetSizer(sizer);
+  */
 
   Connect(wxEVT_ACTIVATE, wxActivateEventHandler(MainFrame::OnActivated));
+
+  AddLog("Hello world");
+}
+
+void MainFrame::AddLog(const std::string& str) {
+  log_->AppendText(str.c_str());
+  log_->AppendText("\n");
 }
 
 bool MainFrame::loadGui(const std::string& file) { return LoadGui(file, this); }

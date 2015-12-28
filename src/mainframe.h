@@ -7,6 +7,8 @@
 
 #include "data.h"
 
+#include "selene.h"
+
 class View;
 class ConsoleDlg;
 
@@ -24,6 +26,8 @@ class MainFrame : public wxFrame {
 
   static MainFrame* Get();
 
+  void AddLog(const std::string& str);
+
  private:
   static MainFrame* sInstance;
 
@@ -36,6 +40,9 @@ class MainFrame : public wxFrame {
   IdCmdMap mCommands;
 
   bool loadGui(const std::string& file);
+
+  sel::State state_;
+  wxTextCtrl* log_;
 };
 
 #endif
