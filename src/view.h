@@ -10,10 +10,7 @@ class View : public wxGLCanvas {
   friend class MainFrame;
 
  public:
-  View(wxWindow* parent, Data* data, wxWindowID id = wxID_ANY,
-       const wxPoint& pos = wxDefaultPosition,
-       const wxSize& size = wxDefaultSize, long style = 0,
-       const wxString& name = _T("View"));
+  View(wxWindow* parent, Data* data);
 
   ~View();
 
@@ -40,6 +37,8 @@ class View : public wxGLCanvas {
   long lasty;
   bool down;
   Data* mData;
+
+  wxGLContext rc;
   DECLARE_EVENT_TABLE()
 };
 

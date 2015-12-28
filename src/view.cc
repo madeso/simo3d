@@ -21,15 +21,16 @@ EVT_MOTION(View::OnMotion)
 EVT_MOUSEWHEEL(View::OnWheel)
 END_EVENT_TABLE()
 
-View::View(wxWindow* parent, Data* data, wxWindowID id, const wxPoint& pos,
-           const wxSize& size, long style, const wxString& name)
-    : wxGLCanvas(parent, id, 0, pos, size, style | wxFULL_REPAINT_ON_RESIZE,
-                 name),
+View::View(wxWindow* parent, Data* data)
+    : wxGLCanvas(parent, wxID_ANY, nullptr),
       mData(data),
       rotX(0),
       rotY(0),
       down(false),
-      distance(100) {}
+      distance(100),
+      rc(this) {
+  Invalidate();
+}
 
 View::~View() {}
 
@@ -74,6 +75,7 @@ void View::OnWheel(wxMouseEvent& e) {
 
 void View::OnPaint(wxPaintEvent& WXUNUSED(event)) {
   wxPaintDC dc(this);
+  SetCurrent(rc);
 
   /*
   #ifndef __WXMOTIF__
@@ -123,19 +125,11 @@ void View::OnPaint(wxPaintEvent& WXUNUSED(event)) {
 }
 
 void View::OnSize(wxSizeEvent& event) {
-  // this is also necessary to update the context on some platforms
-  // wxGLCanvas::OnSize(event);
+  if (!IsShownOnScreen()) return;
+  SetCurrent(rc);
 
-  // set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
-  int w, h;
-  GetClientSize(&w, &h);
-#ifndef __WXMOTIF__
-// if (GetContext())
-#endif
-  {
-    // SetCurrent();
-    glViewport(0, 0, (GLint)w, (GLint)h);
-  }
+  const auto size = event.GetSize();
+  glViewport(0, 0, size.x, size.y);
 }
 
 void View::OnEraseBackground(wxEraseEvent& WXUNUSED(event)) {

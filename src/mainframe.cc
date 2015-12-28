@@ -12,48 +12,18 @@
 #include "idgenerator.h"
 #include "gui.h"
 
-enum { ID_Quit = 1, ID_About };
-
-namespace {
-namespace simodetail {
-void msg(const std::string& msg, const std::string& title) {
-  wxMessageBox(msg, title, wxOK | wxICON_INFORMATION, MainFrame::Get());
-}
-
-bool yesno(const std::string& msg, const std::string& title) {
-  return wxMessageBox(msg, title, wxICON_QUESTION | wxYES_NO,
-                      MainFrame::Get()) == wxYES;
-}
-
-std::string openfile(const std::string& title, const std::string& pattern) {
-  wxFileDialog openFileDialog(MainFrame::Get(), title, "", "", pattern,
-                              wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-  if (openFileDialog.ShowModal() == wxID_CANCEL)
-    return "";
-  else
-    return openFileDialog.GetPath().c_str().AsChar();
-}
-
-void closemain() { MainFrame::Get()->Close(true); }
-
-void reloadscripts() {
-  // Get()->reload();
-}
-
-Data& currentfile() { return MainFrame::Get()->getData(); }
-}
-}
-
+MainFrame* MainFrame::sInstance = nullptr;
 MainFrame* MainFrame::Get() {
   assert(sInstance);
   return sInstance;
 }
 
 Data& MainFrame::getData() { return mData; }
-MainFrame* MainFrame::sInstance = 0;
 
-MainFrame::~MainFrame() { sInstance = 0; }
+MainFrame::~MainFrame() {
+  sInstance = nullptr;
+  google::protobuf::ShutdownProtobufLibrary();
+}
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                      const wxSize& size)
@@ -61,7 +31,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   CreateStatusBar();
   SetStatusText(_("Welcome to SiMo!"));
 
-  assert(sInstance == 0);
+  assert(sInstance == nullptr);
   sInstance = this;
 
   const wxString file =
@@ -75,7 +45,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
     return;
   }
 
-  mView = new View(this, &mData, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+  mView = new View(this, &mData);
 
   Connect(wxEVT_ACTIVATE, wxActivateEventHandler(MainFrame::OnActivated));
 }
@@ -105,9 +75,9 @@ void MainFrame::RunCommand(wxCommandEvent& ev) {
 }
 
 void MainFrame::OnActivated(wxActivateEvent& evt) {
-  // check if it lost focus
   if (evt.GetActive() == false) return;
   evt.Skip();
+
   /*
   mScripts->reload();
   if (mScripts->hasErrors()) {
@@ -116,5 +86,4 @@ void MainFrame::OnActivated(wxActivateEvent& evt) {
                  "SiMo error", wxOK | wxICON_ERROR, this);
   }
   */
-  // addLog("app got focus");
 }
