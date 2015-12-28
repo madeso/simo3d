@@ -2,15 +2,15 @@
 #define SIMO_IDGENERATOR_HPP
 
 class IdGenerator {
-public:
+ public:
   IdGenerator();
   int generate();
 
-protected:
+ protected:
   void next();
   int id() const;
 
-private:
+ private:
   int mId;
 };
 
