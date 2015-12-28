@@ -4,7 +4,6 @@
 #include <string>
 
 #include <wx/stdpaths.h>
-#include "ConsoleDlg.h"
 
 #include <assimp/Importer.hpp>   // C++ importer interface
 #include <assimp/scene.h>        // Output data structure
@@ -39,8 +38,6 @@ std::string openfile(const std::string& title, const std::string& pattern) {
 }
 
 void closemain() { MainFrame::Get()->Close(true); }
-
-void showconsole() { MainFrame::Get()->ShowHideConsole(); }
 
 void reloadscripts() {
   // Get()->reload();
@@ -140,17 +137,7 @@ MainFrame* MainFrame::Get() {
 Data& MainFrame::getData() { return mData; }
 MainFrame* MainFrame::sInstance = 0;
 
-MainFrame::~MainFrame() {
-  Console_End();
-  sInstance = 0;
-  mConsole->Destroy();
-
-  delete mConsole;
-
-  // should this be done? boost documentation says no, but doing this means less
-  // memleaks
-  // Py_Finalize();
-}
+MainFrame::~MainFrame() { sInstance = 0; }
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                      const wxSize& size)
@@ -161,25 +148,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   assert(sInstance == 0);
   sInstance = this;
 
-  // PyImport_AppendInittab("simocore", PyInit_simocore);
-  // PyImport_AppendInittab("emb", emb::PyInit_emb);
-  // Py_Initialize();
-  // PyImport_ImportModule("emb");
-
-  Console_Begin();
-
   const wxString file =
       wxStandardPaths::Get().GetResourcesDir() + "/gui/default.info";
-  mConsole = new ConsoleDlg(0);
-  // mScripts = new ScriptLibrary(mConsole);
-
-  // mScripts->init();
-
-  /*if (mScripts->hasErrors()) {
-    wxMessageBox("Failed to compile all scripts", "SiMo error",
-                 wxOK | wxICON_ERROR, this);
-    Close();
-  }*/
 
   if (false == loadGui(file.c_str().AsChar())) {
     wxMessageBox(
@@ -193,13 +163,6 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
 
   Connect(wxEVT_ACTIVATE, wxActivateEventHandler(MainFrame::OnActivated));
 }
-
-void MainFrame::addLog(const wxString& str) {
-  mConsole->addLog(str);
-  mConsole->addLog("\n");
-}
-
-void MainFrame::ShowHideConsole() { mConsole->Show(); }
 
 class IdGenerator {
  public:
@@ -269,14 +232,14 @@ wxMenu* loadMenu(MainFrame* mf, const simo::Menu& menuEl, IdGenerator* idg,
       std::string display;
       wxMenu* sub = loadMenu(mf, itemEl.menu(), idg, &display);
       if (display.empty()) {
-        mf->addLog("missing title in submenu");
+        // mf->addLog("missing title in submenu");
         display = "EMPTY";
       }
       menu->Append(0, display, sub);
     } else if (itemEl.has_seperator()) {
       menu->Append(wxID_SEPARATOR, "-", "", wxITEM_SEPARATOR);
     } else {
-      mf->addLog("Unrecognized type");
+      // mf->addLog("Unrecognized type");
     }
   }
 
@@ -289,7 +252,7 @@ bool MainFrame::loadGui(const std::string& file) {
   simo::Gui gui;
   wxString r = LoadProtoJson(&gui, file.c_str());
   if (r.IsEmpty() == false) {
-    addLog(r);
+    // addLog(r);
     return false;
   }
 
@@ -323,11 +286,10 @@ std::string MainFrame::getResponse(int id) const {
 
 void MainFrame::RunCommand(wxCommandEvent& ev) {
   const std::string res = getResponse(ev.GetId());
-  bool ok = mConsole->run(res);
-  if (false == ok) {
-    wxMessageBox("Failed to sucessfully run command, see console for details",
+  if (true) {
+    wxMessageBox("Failed to successfully run command, see console for details",
                  "SiMo error", wxOK | wxICON_ERROR, this);
-    // mScripts->clearErrors();
+    return;
   }
   mView->Invalidate();
 }

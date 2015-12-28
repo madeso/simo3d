@@ -43,10 +43,6 @@ class MainFrame : public wxFrame {
 
   void addResponse(int id, const std::string& cmd);
 
-  void ShowHideConsole();
-
-  void addLog(const wxString& str);
-
   Data& getData();
 
   static MainFrame* Get();
@@ -63,8 +59,6 @@ class MainFrame : public wxFrame {
   IdCmdMap mCommands;
 
   bool loadGui(const std::string& file);
-
-  ConsoleDlg* mConsole;
 };
 
 #endif
