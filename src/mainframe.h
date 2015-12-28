@@ -7,7 +7,7 @@
 
 #include "data.h"
 #include "scriptlib.h"
-#include "selene.h"
+#include "script.h"
 
 class View;
 class ConsoleDlg;
@@ -41,7 +41,7 @@ class MainFrame : public wxFrame {
 
   bool loadGui(const std::string& file);
 
-  sel::State state_;
+  Script script_;
   wxTextCtrl* log_;
   ScriptLib library_;
 };

@@ -28,7 +28,7 @@ MainFrame::~MainFrame() {
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                      const wxSize& size)
-    : wxFrame(nullptr, wxID_ANY, title, pos, size), state_(true) {
+    : wxFrame(nullptr, wxID_ANY, title, pos, size) {
   CreateStatusBar();
   SetStatusText(_("Welcome to SiMo!"));
 
@@ -86,7 +86,7 @@ std::string MainFrame::getResponse(int id) const {
 
 void MainFrame::RunCommand(wxCommandEvent& ev) {
   const std::string res = getResponse(ev.GetId());
-  if (true) {
+  if (false == script_.RunCommand(res)) {
     wxMessageBox("Failed to successfully run command, see console for details",
                  "SiMo error", wxOK | wxICON_ERROR, this);
     return;
