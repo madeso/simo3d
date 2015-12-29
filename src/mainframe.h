@@ -28,6 +28,8 @@ class MainFrame : public wxFrame {
 
   void AddLog(const std::string& str);
 
+  Script& script();
+
  private:
   static MainFrame* sInstance;
 

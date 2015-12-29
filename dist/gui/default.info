@@ -24,9 +24,9 @@
 					}
 				},
 				{ "button": {
-						"display": "Print \"Hello world\"",
-						"shortcut": "Ctrl+F",
-						"cmd": "print(\"Hello world\")"
+						"display": "Run",
+						"shortcut": "Ctrl+R",
+						"cmd": "run(input(\"Command to run\"))"
 					}
 				},
 				{ "seperator": {} },

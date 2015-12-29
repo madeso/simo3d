@@ -121,3 +121,5 @@ void MainFrame::OnActivated(wxActivateEvent& evt) {
                  "SiMo error", wxOK | wxICON_ERROR, this);
   }
 }
+
+Script& MainFrame::script() { return script_; }

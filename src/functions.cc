@@ -3,6 +3,8 @@
 #include "data.h"
 #include "script.h"
 
+#include <wx/textdlg.h>
+
 void msg(const std::string& msg, const std::string& title) {
   wxMessageBox(msg, title, wxOK | wxICON_INFORMATION, MainFrame::Get());
 }
@@ -72,6 +74,20 @@ void import(const std::string& file) {
   MainFrame::Get()->getData().import(file);
 }
 
+void runcmd(const std::string& cmd) {
+  if (cmd.empty()) return;
+  MainFrame::Get()->script().RunCommand(cmd);
+}
+
+std::string getstring(const std::string& title) {
+  wxTextEntryDialog dlg(MainFrame::Get(), title, wxGetTextFromUserPromptStr);
+  if (dlg.ShowModal() == wxID_OK) {
+    return dlg.GetValue().c_str().AsChar();
+  } else {
+    return "";
+  }
+}
+
 void LoadFunctions(Script* script) {
   auto& s = script->state();
 
@@ -80,12 +96,14 @@ void LoadFunctions(Script* script) {
   s["openfile"] = &openfile;
   s["closemain"] = &closemain;
   s["reloadscripts"] = &reloadscripts;
+  s["run"] = &runcmd;
+  s["input"] = &getstring;
 
   s["fileimport"] = &import;
 
   s.OpenLib("simo", &luaopen_foo);
 
-  s["file"].SetObj(MainFrame::Get()->getData(), "import", &Data::import);
+  s["file"].SetObj(MainFrame::Get()->getData(), "import", &Data::runimport);
 
   // s["print"] = PrintObject();
   // s["error"] = PrintObject();

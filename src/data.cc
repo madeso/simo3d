@@ -18,6 +18,8 @@ void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
 }
 }
 
+void Data::runimport(const char* const path) { import(path); }
+
 void Data::import(const std::string& path) {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(
