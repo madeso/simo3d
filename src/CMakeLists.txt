@@ -9,6 +9,7 @@ include_directories(${CMAKE_SOURCE_DIR}/external/lua-5.3.2/)
 
 set(lua_src ${lua_src_glob} ${lua_hdr_glob})
 include_directories(${CMAKE_SOURCE_DIR}/external/selene/)
+include_directories(${CMAKE_SOURCE_DIR}/external/ChaiScript-5.7.1/include/)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 PROTOBUF_GENERATE_CPP(GUI_PROTO_SRCS GUI_PROTO_HDRS gui.proto)

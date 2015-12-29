@@ -2,6 +2,7 @@
 #define SIMO_SCRIPT_HPP
 
 #include "selene.h"
+#include <chaiscript/chaiscript.hpp>
 
 #include <string>
 class MainFrame;
@@ -18,6 +19,7 @@ class Script {
 
  private:
   sel::State state_;
+  chaiscript::ChaiScript chai_;
   MainFrame* main_;
 };
 

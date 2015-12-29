@@ -1,4 +1,5 @@
 #include "script.h"
+#include <chaiscript/chaiscript_stdlib.hpp>
 
 #include "functions.h"
 
@@ -6,7 +7,9 @@ void ExceptionLog(int sd, std::string message, std::exception_ptr ex) {
   AddLog(message);
 }
 
-Script::Script() : state_(true) { state_.HandleExceptionsWith(ExceptionLog); }
+Script::Script() : state_(true), chai_(chaiscript::Std_Lib::library()) {
+  state_.HandleExceptionsWith(ExceptionLog);
+}
 
 bool Script::RunCommand(const std::string& cmd) {
   AddLog("> " + cmd);
