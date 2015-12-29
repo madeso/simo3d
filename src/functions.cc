@@ -67,3 +67,6 @@ void LoadFunctions(Script* script) {
 }
 
 void AddLog(const std::string& str) { MainFrame::Get()->AddLog(str); }
+void AddLogWithoutEndline(const std::string& str) {
+  MainFrame::Get()->AddLogWithoutEndline(str);
+}

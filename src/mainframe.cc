@@ -71,10 +71,6 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
 
   LoadFunctions(&script_);
 
-  script_.RunCommand("require \"simo\"");
-  script_.RunCommand("print = simo.log");
-  // script_.RunCommand("error = simo.log");
-
   wxArrayString files;
   wxDir::GetAllFiles(wxStandardPaths::Get().GetResourcesDir(), &files, "*.lua");
   for (const wxString& file : files) {
@@ -86,6 +82,11 @@ void MainFrame::AddLog(const std::string& str) {
   if (log_ == nullptr) return;
   log_->AppendText(str.c_str());
   log_->AppendText("\n");
+}
+
+void MainFrame::AddLogWithoutEndline(const std::string& str) {
+  if (log_ == nullptr) return;
+  log_->AppendText(str.c_str());
 }
 
 bool MainFrame::loadGui(const std::string& file) { return LoadGui(file, this); }

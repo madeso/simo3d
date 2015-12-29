@@ -8,5 +8,6 @@ class Script;
 void LoadFunctions(Script* script);
 
 void AddLog(const std::string& str);
+void AddLogWithoutEndline(const std::string& str);
 
 #endif

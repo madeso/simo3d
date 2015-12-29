@@ -1,7 +1,12 @@
 #include "script.h"
-#include <chaiscript/chaiscript_stdlib.hpp>
 
 #include "functions.h"
+
+// capture print functions
+#define fwrite(str, one, size, output) AddLogWithoutEndline(str)
+#define puts(str) AddLog(str)
+
+#include <chaiscript/chaiscript_stdlib.hpp>
 
 Script::Script() : chai_(chaiscript::Std_Lib::library()) {}
 

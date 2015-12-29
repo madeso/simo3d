@@ -27,6 +27,7 @@ class MainFrame : public wxFrame {
   static MainFrame* Get();
 
   void AddLog(const std::string& str);
+  void AddLogWithoutEndline(const std::string& str);
 
   Script& script();
 
