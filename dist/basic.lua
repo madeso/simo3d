@@ -1,3 +1,1 @@
-require "simo"
-print = simo.log
-error = simo.log
+print("Hello world")

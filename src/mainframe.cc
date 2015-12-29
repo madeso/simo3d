@@ -5,6 +5,7 @@
 
 #include <wx/stdpaths.h>
 #include <wx/splitter.h>
+#include <wx/dir.h>
 
 #include <google/protobuf/message.h>
 #include <wx/filename.h>
@@ -70,9 +71,15 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
 
   LoadFunctions(&script_);
 
-  const wxString basic =
-      wxStandardPaths::Get().GetResourcesDir() + "/basic.lua";
-  library_.load(basic.c_str().AsChar());
+  script_.RunCommand("require \"simo\"");
+  script_.RunCommand("print = simo.log");
+  // script_.RunCommand("error = simo.log");
+
+  wxArrayString files;
+  wxDir::GetAllFiles(wxStandardPaths::Get().GetResourcesDir(), &files, "*.lua");
+  for (const wxString& file : files) {
+    library_.load(file.c_str().AsChar());
+  }
 }
 
 void MainFrame::AddLog(const std::string& str) {
