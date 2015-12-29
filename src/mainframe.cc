@@ -72,7 +72,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   LoadFunctions(&script_);
 
   wxArrayString files;
-  wxDir::GetAllFiles(wxStandardPaths::Get().GetResourcesDir(), &files, "*.lua");
+  wxDir::GetAllFiles(wxStandardPaths::Get().GetResourcesDir(), &files,
+                     "*.chai");
   for (const wxString& file : files) {
     library_.load(file.c_str().AsChar());
   }

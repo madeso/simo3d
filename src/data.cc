@@ -18,8 +18,6 @@ void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
 }
 }
 
-void Data::runimport(const char* const path) { import(path); }
-
 void Data::import(const std::string& path) {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(
@@ -61,7 +59,7 @@ void Data::import(const std::string& path) {
 }
 
 void Data::render() {
-  // glColor3f(1, 0, 0);
+  // glColor3f(1, 1, 1);
   for (const Mesh& m : meshes) {
     for (const Face& f : m.faces) {
       int type = GL_POINTS;

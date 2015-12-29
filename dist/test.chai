@@ -1,0 +1,7 @@
+def importfile() {
+	var f = openfile("Select file to import", "All files|*.*")
+	if(f != "") {
+		print(f)
+		fileimport(f)
+	}
+}

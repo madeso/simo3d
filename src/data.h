@@ -24,7 +24,6 @@ class Data {
  public:
   std::vector<Mesh> meshes;
   void import(const std::string& path);
-  void runimport(const char* const path);
   void render();
 };
 
