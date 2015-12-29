@@ -48,22 +48,26 @@ std::string getstring(const std::string& title) {
   }
 }
 
-void LoadFunctions(Script* script) {
-  auto& s = script->chai();
+Data& currentfile() { return MainFrame::Get()->getData(); }
 
-  s.add(chaiscript::fun(&msg), "msg");
-  s.add(chaiscript::fun(&yesno), "yesno");
-  s.add(chaiscript::fun(&openfile), "openfile");
-  s.add(chaiscript::fun(&closemain), "closemain");
-  s.add(chaiscript::fun(&reloadscripts), "reloadscripts");
-  s.add(chaiscript::fun(&runcmd), "run");
-  s.add(chaiscript::fun(&getstring), "input");
-  s.add(chaiscript::fun(&import), "fileimport");
+void LoadFunctions(Script* script) {
+  chaiscript::ModulePtr m = chaiscript::ModulePtr(new chaiscript::Module());
+
+  m->add(chaiscript::fun(&msg), "msg");
+  m->add(chaiscript::fun(&yesno), "yesno");
+  m->add(chaiscript::fun(&openfile), "openfile");
+  m->add(chaiscript::fun(&closemain), "closemain");
+  m->add(chaiscript::fun(&reloadscripts), "reloadscripts");
+  m->add(chaiscript::fun(&runcmd), "run");
+  m->add(chaiscript::fun(&getstring), "input");
+  m->add(chaiscript::fun(&import), "fileimport");
 
   // s["file"].SetObj(MainFrame::Get()->getData(), "import", &Data::runimport);
 
   // s["print"] = PrintObject();
   // s["error"] = PrintObject();
+
+  script->chai().add(m);
 }
 
 void AddLog(const std::string& str) { MainFrame::Get()->AddLog(str); }
