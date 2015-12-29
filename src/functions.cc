@@ -5,6 +5,10 @@
 
 #include <wx/textdlg.h>
 
+#include <chaiscript/utility/utility.hpp>
+#include <chaiscript/dispatchkit/bootstrap.hpp>
+#include <chaiscript/dispatchkit/bootstrap_stl.hpp>
+
 void msg(const std::string& msg, const std::string& title) {
   wxMessageBox(msg, title, wxOK | wxICON_INFORMATION, MainFrame::Get());
 }
@@ -61,6 +65,29 @@ void LoadFunctions(Script* script) {
   m->add(chaiscript::fun(&runcmd), "run");
   m->add(chaiscript::fun(&getstring), "input");
   m->add(chaiscript::fun(&import), "fileimport");
+  m->add(chaiscript::fun(&currentfile), "file");
+
+  const std::vector<chaiscript::Proxy_Function> noconstructors;
+
+  chaiscript::utility::add_class<Data>(
+      *m, "Data", noconstructors, {{chaiscript::fun(&Data::meshes), "meshes"}});
+
+  chaiscript::utility::add_class<Mesh>(
+      *m, "Mesh", noconstructors,
+      {{chaiscript::fun(&Mesh::name), "name"},
+       {chaiscript::fun(&Mesh::vertices), "vertices"}});
+
+  chaiscript::utility::add_class<vec3>(*m, "vec3", noconstructors,
+                                       {{chaiscript::fun(&vec3::x), "x"},
+                                        {chaiscript::fun(&vec3::y), "y"},
+                                        {chaiscript::fun(&vec3::z), "z"}});
+
+  m->add(chaiscript::bootstrap::standard_library::vector_type<Vec3List>(
+      "Vec3List"));
+  m->add(chaiscript::bootstrap::standard_library::vector_type<FaceList>(
+      "IntList"));
+  m->add(chaiscript::bootstrap::standard_library::vector_type<MeshList>(
+      "MeshList"));
 
   // s["file"].SetObj(MainFrame::Get()->getData(), "import", &Data::runimport);
 
