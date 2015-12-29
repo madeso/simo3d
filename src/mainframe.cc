@@ -31,7 +31,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                      const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size),
       script_(),
-      library_(&script_) {
+      library_(&script_),
+      log_(nullptr) {
   CreateStatusBar();
   SetStatusText(_("Welcome to SiMo!"));
 
@@ -68,9 +69,14 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   Connect(wxEVT_ACTIVATE, wxActivateEventHandler(MainFrame::OnActivated));
 
   LoadFunctions(&script_);
+
+  const wxString basic =
+      wxStandardPaths::Get().GetResourcesDir() + "/basic.lua";
+  library_.load(basic.c_str().AsChar());
 }
 
 void MainFrame::AddLog(const std::string& str) {
+  if (log_ == nullptr) return;
   log_->AppendText(str.c_str());
   log_->AppendText("\n");
 }

@@ -17,17 +17,23 @@
 								"button": {
 									"display": "Console",
 									"shortcut": "F2",
-									"cmd": "simocore.showconsole()"
+									"cmd": "showconsole()"
 								}
 							}
 						]
+					}
+				},
+				{ "button": {
+						"display": "Print \"Hello world\"",
+						"shortcut": "Ctrl+F",
+						"cmd": "print(\"Hello world\")"
 					}
 				},
 				{ "seperator": {} },
 				{ "button": {
 						"display": "Quit",
 						"shortcut": "Alt+F4",
-						"cmd": "simocore.closemain()"
+						"cmd": "closemain()"
 					}
 				}
 			]

@@ -4,6 +4,7 @@
 #include "selene.h"
 
 #include <string>
+class MainFrame;
 
 class Script {
  public:
@@ -17,6 +18,7 @@ class Script {
 
  private:
   sel::State state_;
+  MainFrame* main_;
 };
 
 #endif

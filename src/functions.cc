@@ -28,6 +28,45 @@ void reloadscripts() {
   // Get()->reload();
 }
 
+class PrintObject : public sel::BaseFun {
+  int Apply(lua_State* L) override {
+    int nargs = lua_gettop(L);
+
+    std::ostringstream ss;
+
+    for (int i = 1; i <= nargs; i++) {
+      const std::string str = lua_tostring(L, i);
+      ss << str;
+    }
+
+    MainFrame::Get()->AddLog(ss.str());
+
+    return 0;
+  }
+};
+
+int add_log(lua_State* L) {
+  int nargs = lua_gettop(L);
+
+  std::ostringstream ss;
+
+  for (int i = 1; i <= nargs; i++) {
+    const std::string str = lua_tostring(L, i);
+    ss << str;
+  }
+
+  MainFrame::Get()->AddLog(ss.str());
+
+  return 0;
+}
+
+int luaopen_foo(lua_State* L) {
+  static const luaL_Reg foo[] = {{"log", add_log}, {NULL, NULL}};
+
+  luaL_newlib(L, foo);
+  return 1;
+}
+
 Data& currentfile() { return MainFrame::Get()->getData(); }
 
 void LoadFunctions(Script* script) {
@@ -38,4 +77,11 @@ void LoadFunctions(Script* script) {
   s["openfile"] = &openfile;
   s["closemain"] = &closemain;
   s["reloadscripts"] = &reloadscripts;
+
+  s.OpenLib("simo", &luaopen_foo);
+
+  // s["print"] = PrintObject();
+  // s["error"] = PrintObject();
 }
+
+void AddLog(const std::string& str) { MainFrame::Get()->AddLog(str); }
