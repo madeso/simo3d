@@ -3,12 +3,6 @@ FILE(GLOB app_src_glob *.cc;*.h;*.inl)
 find_package(wxWidgets COMPONENTS core base gl)
 include( "${wxWidgets_USE_FILE}" )
 
-FILE(GLOB lua_src_glob ${CMAKE_SOURCE_DIR}/external/lua-5.3.2/*.c)
-FILE(GLOB lua_hdr_glob ${CMAKE_SOURCE_DIR}/external/lua-5.3.2/*.h)
-include_directories(${CMAKE_SOURCE_DIR}/external/lua-5.3.2/)
-
-set(lua_src ${lua_src_glob} ${lua_hdr_glob})
-include_directories(${CMAKE_SOURCE_DIR}/external/selene/)
 include_directories(${CMAKE_SOURCE_DIR}/external/ChaiScript-5.7.1/include/)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -24,10 +18,9 @@ set(pbjson_src
 source_group("" FILES ${app_src})
 source_group("generated" FILES ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS})
 source_group("external" FILES ${pbjson_src})
-source_group("lua" FILES ${lua_src})
 source_group(cmake FILES "${PROJECT_SOURCE_DIR}/simo3d-config-in.h")
 
-set(all_src ${app_src} ${lua_src} "${PROJECT_SOURCE_DIR}/simo3d-config-in.h" ${src_glew} ${src_soil} ${src_jsoncpp} ${src_lua} ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS}  ${pbjson_src})
+set(all_src ${app_src} "${PROJECT_SOURCE_DIR}/simo3d-config-in.h" ${src_glew} ${src_soil} ${src_jsoncpp} ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS}  ${pbjson_src})
 
 include_directories(${CMAKE_SOURCE_DIR}/external/pbjson/src/)
 
