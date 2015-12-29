@@ -1,5 +1,7 @@
 #include "data.h"
 
+#include "functions.h"
+
 #include <assimp/Importer.hpp>   // C++ importer interface
 #include <assimp/scene.h>        // Output data structure
 #include <assimp/postprocess.h>  // Post processing flags
@@ -23,10 +25,12 @@ void Data::import(const std::string& path) {
                 aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
 
   if (!scene) {
+    AddLog(importer.GetErrorString());
     throw std::runtime_error(importer.GetErrorString());
   }
 
   if (scene->HasMeshes() == false) {
+    AddLog("non meshes not currently supported");
     throw std::runtime_error("non meshes not currently supported");
   }
 

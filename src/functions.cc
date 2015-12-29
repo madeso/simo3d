@@ -51,7 +51,8 @@ int add_log(lua_State* L) {
   std::ostringstream ss;
 
   for (int i = 1; i <= nargs; i++) {
-    const std::string str = lua_tostring(L, i);
+    const char* c = lua_tostring(L, i);
+    const std::string str = c ? c : "<nil>";
     ss << str;
   }
 
@@ -67,7 +68,9 @@ int luaopen_foo(lua_State* L) {
   return 1;
 }
 
-Data& currentfile() { return MainFrame::Get()->getData(); }
+void import(const std::string& file) {
+  MainFrame::Get()->getData().import(file);
+}
 
 void LoadFunctions(Script* script) {
   auto& s = script->state();
@@ -78,7 +81,11 @@ void LoadFunctions(Script* script) {
   s["closemain"] = &closemain;
   s["reloadscripts"] = &reloadscripts;
 
+  s["fileimport"] = &import;
+
   s.OpenLib("simo", &luaopen_foo);
+
+  s["file"].SetObj(MainFrame::Get()->getData(), "import", &Data::import);
 
   // s["print"] = PrintObject();
   // s["error"] = PrintObject();
