@@ -1,8 +1,0 @@
-plugins
-{
-	// names starting with _ are develompment libraries, automatically loaded at app focus, others are only loaded at startup
-	plugin
-	{
-		name _test
-	}
-}

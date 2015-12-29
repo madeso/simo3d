@@ -1,7 +1,0 @@
-main
-{
-	script
-	{
-		name test.py
-	}
-}
