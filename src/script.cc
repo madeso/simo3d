@@ -3,24 +3,43 @@
 
 #include "functions.h"
 
-void ExceptionLog(int sd, std::string message, std::exception_ptr ex) {
-  AddLog(message);
-}
+Script::Script() : chai_(chaiscript::Std_Lib::library()) {}
 
-Script::Script() : state_(true), chai_(chaiscript::Std_Lib::library()) {
-  state_.HandleExceptionsWith(ExceptionLog);
+void AddErrorLog() {
+  try {
+    throw;
+  }
+  /*
+  catch (const chaiscript::exception::eval_error& eval) {
+    eval.
+  }*/
+  catch (const std::runtime_error& err) {
+    AddLog(err.what());
+  }
 }
 
 bool Script::RunCommand(const std::string& cmd) {
   AddLog("> " + cmd);
-  return state_(cmd.c_str());
+  try {
+    chai_.eval(cmd.c_str());
+    return true;
+  } catch (...) {
+    AddErrorLog();
+    return false;
+  }
 }
 
 bool Script::RunFile(const std::string& file) {
   AddLog("Running file " + file);
-  return state_.Load(file);
+  try {
+    chai_.eval_file(file);
+  } catch (...) {
+    AddErrorLog();
+    return false;
+  }
+  return true;
 }
 
-sel::State& Script::state() { return state_; }
+chaiscript::ChaiScript& Script::chai() { return chai_; }
 
-const sel::State& Script::state() const { return state_; }
+const chaiscript::ChaiScript& Script::chai() const { return chai_; }

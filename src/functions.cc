@@ -30,46 +30,6 @@ void reloadscripts() {
   // Get()->reload();
 }
 
-class PrintObject : public sel::BaseFun {
-  int Apply(lua_State* L) override {
-    int nargs = lua_gettop(L);
-
-    std::ostringstream ss;
-
-    for (int i = 1; i <= nargs; i++) {
-      const std::string str = lua_tostring(L, i);
-      ss << str;
-    }
-
-    MainFrame::Get()->AddLog(ss.str());
-
-    return 0;
-  }
-};
-
-int add_log(lua_State* L) {
-  int nargs = lua_gettop(L);
-
-  std::ostringstream ss;
-
-  for (int i = 1; i <= nargs; i++) {
-    const char* c = lua_tostring(L, i);
-    const std::string str = c ? c : "<nil>";
-    ss << str;
-  }
-
-  MainFrame::Get()->AddLog(ss.str());
-
-  return 0;
-}
-
-int luaopen_foo(lua_State* L) {
-  static const luaL_Reg foo[] = {{"log", add_log}, {NULL, NULL}};
-
-  luaL_newlib(L, foo);
-  return 1;
-}
-
 void import(const std::string& file) {
   MainFrame::Get()->getData().import(file);
 }
@@ -89,21 +49,18 @@ std::string getstring(const std::string& title) {
 }
 
 void LoadFunctions(Script* script) {
-  auto& s = script->state();
+  auto& s = script->chai();
 
-  s["msg"] = &msg;
-  s["yesno"] = &yesno;
-  s["openfile"] = &openfile;
-  s["closemain"] = &closemain;
-  s["reloadscripts"] = &reloadscripts;
-  s["run"] = &runcmd;
-  s["input"] = &getstring;
+  s.add(chaiscript::fun(&msg), "msg");
+  s.add(chaiscript::fun(&yesno), "yesno");
+  s.add(chaiscript::fun(&openfile), "openfile");
+  s.add(chaiscript::fun(&closemain), "closemain");
+  s.add(chaiscript::fun(&reloadscripts), "reloadscripts");
+  s.add(chaiscript::fun(&runcmd), "run");
+  s.add(chaiscript::fun(&getstring), "input");
+  s.add(chaiscript::fun(&import), "fileimport");
 
-  s["fileimport"] = &import;
-
-  s.OpenLib("simo", &luaopen_foo);
-
-  s["file"].SetObj(MainFrame::Get()->getData(), "import", &Data::runimport);
+  // s["file"].SetObj(MainFrame::Get()->getData(), "import", &Data::runimport);
 
   // s["print"] = PrintObject();
   // s["error"] = PrintObject();

@@ -1,7 +1,6 @@
 #ifndef SIMO_SCRIPT_HPP
 #define SIMO_SCRIPT_HPP
 
-#include "selene.h"
 #include <chaiscript/chaiscript.hpp>
 
 #include <string>
@@ -14,11 +13,10 @@ class Script {
   bool RunCommand(const std::string& cmd);
   bool RunFile(const std::string& file);
 
-  sel::State& state();
-  const sel::State& state() const;
+  chaiscript::ChaiScript& chai();
+  const chaiscript::ChaiScript& chai() const;
 
  private:
-  sel::State state_;
   chaiscript::ChaiScript chai_;
   MainFrame* main_;
 };
