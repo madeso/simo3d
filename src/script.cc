@@ -10,22 +10,12 @@ Script::Script() : state_(true) { state_.HandleExceptionsWith(ExceptionLog); }
 
 bool Script::RunCommand(const std::string& cmd) {
   AddLog("> " + cmd);
-  const bool ok = state_(cmd.c_str());
-
-  if (false == ok) {
-    AddLog("Failed.");
-  }
-
-  return ok;
+  return state_(cmd.c_str());
 }
 
 bool Script::RunFile(const std::string& file) {
   AddLog("Running file " + file);
-  const bool ok = state_.Load(file);
-  if (false == ok) {
-    AddLog("Failed.");
-  }
-  return ok;
+  return state_.Load(file);
 }
 
 sel::State& Script::state() { return state_; }
