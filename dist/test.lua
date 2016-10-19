@@ -1,15 +1,15 @@
-def importfile() {
-	var f = openfile("Select file to import", "All files|*.*")
-	if(f != "") {
+function importfile() {
+	local f = openfile("Select file to import", "All files|*.*")
+	if(f ~= "") {
 		print(f)
 		fileimport(f)
-		scalemesh(100);
+		scalemesh(100)
 	}
 }
 
-def scalemesh(s) {
+function scalemesh(s) {
 	if( file().meshes.size() == 1 ) {
-		var m := file().meshes[0]
+		local m = file().meshes[0]
 		for(var vi=0; vi<m.vertices.size(); ++vi) {
 			var old := m.vertices[vi]
 			old.x *= s
