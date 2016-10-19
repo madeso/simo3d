@@ -28,6 +28,16 @@ MainFrame::~MainFrame() {
   google::protobuf::ShutdownProtobufLibrary();
 }
 
+wxString FindFile(const std::vector<wxString>& directories, const wxString& path) {
+  for(const wxString& d : directories) {
+    const wxString cwd = d + path;
+    if( wxFileExists(cwd) ) return cwd;
+  }
+
+  // couldnt find file, just return the default
+  return path;
+}
+
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                      const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size),
@@ -40,8 +50,12 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   assert(sInstance == nullptr);
   sInstance = this;
 
-  const wxString file =
-      wxStandardPaths::Get().GetResourcesDir() + "/gui/default.info";
+  std::vector<wxString> directories;
+  directories.push_back(wxGetCwd());
+  directories.push_back(wxStandardPaths::Get().GetUserDataDir());
+  directories.push_back(wxStandardPaths::Get().GetResourcesDir());
+
+  const wxString file = FindFile(directories, "/gui/default.info");
 
   if (false == loadGui(file.c_str().AsChar())) {
     wxMessageBox(
@@ -71,11 +85,20 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
 
   LoadFunctions(&script_);
 
-  wxArrayString files;
-  wxDir::GetAllFiles(wxStandardPaths::Get().GetResourcesDir(), &files,
-                     "*.chai");
-  for (const wxString& file : files) {
-    library_.load(file.c_str().AsChar());
+
+  bool loaded = false;
+  for(const wxString& d: directories) {
+    wxArrayString files;
+    wxDir::GetAllFiles(d, &files,
+                       "*.chai");
+    for (const wxString& file : files) {
+      library_.load(file.c_str().AsChar());
+      loaded = true;
+    }
+  }
+
+  if( loaded == false) {
+    AddLog("No script files loaded, is this correct?");
   }
 }
 
