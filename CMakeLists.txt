@@ -13,6 +13,7 @@ option(BUILD_USE_CPPLINT "Add cpplint to the build" OFF)
 option(BUILD_USE_DOXYGEN "Add doxygen to the build" OFF)
 
 find_package(AssImp REQUIRED)
+find_package(OpenGL REQUIRED)
 
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
