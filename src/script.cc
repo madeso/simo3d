@@ -2,13 +2,19 @@
 
 #include "functions.h"
 
-// capture print functions
-#define fwrite(str, one, size, output) AddLogWithoutEndline(str)
-#define puts(str) AddLog(str)
+#include "sol.hpp"
 
-#include <chaiscript/chaiscript_stdlib.hpp>
+struct ScriptImpl {
+  ~ScriptImpl() {}
 
-Script::Script() : chai_(chaiscript::Std_Lib::library()) {}
+  sol::state state;
+};
+
+Script::Script() : impl(new ScriptImpl()) {
+}
+
+Script::~Script() {
+}
 
 void AddErrorLog() {
   try {
@@ -26,7 +32,7 @@ void AddErrorLog() {
 bool Script::RunCommand(const std::string& cmd) {
   AddLog("> " + cmd);
   try {
-    chai_.eval(cmd.c_str());
+    impl->state.script(cmd);
     return true;
   } catch (...) {
     AddErrorLog();
@@ -37,7 +43,7 @@ bool Script::RunCommand(const std::string& cmd) {
 bool Script::RunFile(const std::string& file) {
   AddLog("Running file " + file);
   try {
-    chai_.eval_file(file);
+    impl->state.script_file(file);
   } catch (...) {
     AddErrorLog();
     return false;
@@ -45,6 +51,6 @@ bool Script::RunFile(const std::string& file) {
   return true;
 }
 
-chaiscript::ChaiScript& Script::chai() { return chai_; }
+sol::state& Script::state() { return impl->state; }
+const sol::state& Script::state() const { return impl->state; }
 
-const chaiscript::ChaiScript& Script::chai() const { return chai_; }

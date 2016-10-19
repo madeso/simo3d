@@ -1,23 +1,29 @@
 #ifndef SIMO_SCRIPT_HPP
 #define SIMO_SCRIPT_HPP
 
-#include <chaiscript/chaiscript.hpp>
+namespace sol {
+  class state;
+}
 
 #include <string>
+#include <memory>
 class MainFrame;
+
+struct ScriptImpl;
 
 class Script {
  public:
   Script();
+  ~Script();
 
   bool RunCommand(const std::string& cmd);
   bool RunFile(const std::string& file);
 
-  chaiscript::ChaiScript& chai();
-  const chaiscript::ChaiScript& chai() const;
+  sol::state& state();
+  const sol::state& state() const;
 
  private:
-  chaiscript::ChaiScript chai_;
+  std::unique_ptr<ScriptImpl> impl;
   MainFrame* main_;
 };
 

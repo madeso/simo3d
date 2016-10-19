@@ -90,7 +90,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
   for(const wxString& d: directories) {
     wxArrayString files;
     wxDir::GetAllFiles(d, &files,
-                       "*.chai");
+                       "*.lua");
     for (const wxString& file : files) {
       library_.load(file.c_str().AsChar());
       loaded = true;

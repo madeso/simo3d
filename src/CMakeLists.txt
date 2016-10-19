@@ -1,9 +1,46 @@
 FILE(GLOB app_src_glob *.cc;*.h;*.inl)
 
+SET(src_lua
+    ../external/lua/src/lapi.c
+    ../external/lua/src/lauxlib.c
+    ../external/lua/src/lbaselib.c
+    ../external/lua/src/lbitlib.c
+    ../external/lua/src/lcode.c
+    ../external/lua/src/lcorolib.c
+    ../external/lua/src/lctype.c
+    ../external/lua/src/ldblib.c
+    ../external/lua/src/ldebug.c
+    ../external/lua/src/ldo.c
+    ../external/lua/src/ldump.c
+    ../external/lua/src/lfunc.c
+    ../external/lua/src/lgc.c
+    ../external/lua/src/linit.c
+    ../external/lua/src/liolib.c
+    ../external/lua/src/llex.c
+    ../external/lua/src/lmathlib.c
+    ../external/lua/src/lmem.c
+    ../external/lua/src/loadlib.c
+    ../external/lua/src/lobject.c
+    ../external/lua/src/lopcodes.c
+    ../external/lua/src/loslib.c
+    ../external/lua/src/lparser.c
+    ../external/lua/src/lstate.c
+    ../external/lua/src/lstring.c
+    ../external/lua/src/lstrlib.c
+    ../external/lua/src/ltable.c
+    ../external/lua/src/ltablib.c
+    ../external/lua/src/ltm.c
+    ../external/lua/src/lundump.c
+    ../external/lua/src/lutf8lib.c
+    ../external/lua/src/lvm.c
+    ../external/lua/src/lzio.c
+    )
+
 FIND_PACKAGE(wxWidgets COMPONENTS core base gl)
 INCLUDE( "${wxWidgets_USE_FILE}" )
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/external/ChaiScript-5.7.1/include/)
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/external/lua/src/)
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/external/sol2/)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 PROTOBUF_GENERATE_CPP(GUI_PROTO_SRCS GUI_PROTO_HDRS gui.proto)
@@ -16,11 +53,12 @@ SET(pbjson_src
     )
 
 SOURCE_GROUP("" FILES ${app_src})
+SOURCE_GROUP("lua" FILES ${src_lua})
 SOURCE_GROUP("generated" FILES ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS})
 SOURCE_GROUP("external" FILES ${pbjson_src})
 SOURCE_GROUP(cmake FILES "${PROJECT_SOURCE_DIR}/simo3d-config-in.h")
 
-SET(all_src ${app_src} "${PROJECT_SOURCE_DIR}/simo3d-config-in.h" ${src_glew} ${src_soil} ${src_jsoncpp} ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS}  ${pbjson_src})
+SET(all_src ${app_src} ${src_lua} "${PROJECT_SOURCE_DIR}/simo3d-config-in.h" ${src_glew} ${src_soil} ${src_jsoncpp} ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS}  ${pbjson_src})
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/external/pbjson/src/)
 
