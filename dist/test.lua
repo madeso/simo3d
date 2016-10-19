@@ -1,20 +1,18 @@
-function importfile() {
+function importfile()
 	local f = openfile("Select file to import", "All files|*.*")
-	if(f ~= "") {
+	if f ~= "" then
 		print(f)
 		fileimport(f)
 		scalemesh(100)
-	}
-}
+	end
+end
 
-function scalemesh(s) {
-	if( file().meshes.size() == 1 ) {
-		local m = file().meshes[0]
-		for(var vi=0; vi<m.vertices.size(); ++vi) {
-			var old := m.vertices[vi]
-			old.x *= s
-			old.y *= s
-			old.z *= s
-		}
-	}
-}
+function scalemesh(s)
+  for _, m in ipairs(file().meshes) do
+    for _, old in ipairs(m.vertices) do
+      old.x = old.x * s
+      old.y = old.y * s
+      old.z = old.z * s
+    end
+  end
+end
