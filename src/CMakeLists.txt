@@ -10,10 +10,10 @@ PROTOBUF_GENERATE_CPP(GUI_PROTO_SRCS GUI_PROTO_HDRS gui.proto)
 set(app_src ${app_src_glob} "${PROJECT_BINARY_DIR}/simo3d-config.h" gui.proto)
 
 set(pbjson_src
-	${CMAKE_SOURCE_DIR}/external/pbjson/src/pbjson.cpp
-	${CMAKE_SOURCE_DIR}/external/pbjson/src/pbjson.hpp
-	${CMAKE_SOURCE_DIR}/external/pbjson/src/bin2ascii.h
-	)
+    ${CMAKE_SOURCE_DIR}/external/pbjson/src/pbjson.cpp
+    ${CMAKE_SOURCE_DIR}/external/pbjson/src/pbjson.hpp
+    ${CMAKE_SOURCE_DIR}/external/pbjson/src/bin2ascii.h
+    )
 
 source_group("" FILES ${app_src})
 source_group("generated" FILES ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS})
@@ -31,13 +31,13 @@ if(BUILD_USE_DOXYGEN)
 endif(BUILD_USE_DOXYGEN)
 
 add_executable(simo3d WIN32 MACOSX_BUNDLE ${all_src})
-set_target_properties( simo3d
-    PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/dist"
-	DEBUG_OUTPUT_NAME "simo3d-debug"
-	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/dist"
-	RELEASE_OUTPUT_NAME "simo3d"
-)
+set_target_properties(simo3d
+                      PROPERTIES
+                      RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/dist"
+                      DEBUG_OUTPUT_NAME "simo3d-debug"
+                      RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/dist"
+                      RELEASE_OUTPUT_NAME "simo3d"
+                      )
 
 # SET_PROPERTY(TARGET simo3d PROPERTY CXX_STANDARD 11)
 # SET_PROPERTY(TARGET simo3d PROPERTY CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,24 +47,24 @@ TARGET_LINK_LIBRARIES(simo3d ${CMAKE_THREAD_LIBS_INIT})
 
 if(BUILD_USE_CLANG_FORMAT)
 	add_custom_command(TARGET simo3d
-				   PRE_BUILD
-				   COMMAND ./call-clang-format.py ${CMAKE_CURRENT_SOURCE_DIR}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/*.h  ${mainsrc}
-				   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-				   COMMENT "Running clang format" VERBATIM)
+				             PRE_BUILD
+				             COMMAND ./call-clang-format.py ${CMAKE_CURRENT_SOURCE_DIR}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/*.h  ${mainsrc}
+				             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+				             COMMENT "Running clang format" VERBATIM)
 endif(BUILD_USE_CLANG_FORMAT)
 
 if(BUILD_USE_CPPLINT)
 	add_custom_command(TARGET simo3d
-					   PRE_BUILD
-					   COMMAND ./cpplint.py ARGS --output=vs7 ${CMAKE_CURRENT_SOURCE_DIR}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/*.h  ${mainsrc}
-					   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-					   COMMENT "Running CppLint" VERBATIM)
+			        		   PRE_BUILD
+			        		   COMMAND ./cpplint.py ARGS --output=vs7 ${CMAKE_CURRENT_SOURCE_DIR}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/*.h  ${mainsrc}
+				        	   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+				        	   COMMENT "Running CppLint" VERBATIM)
 endif(BUILD_USE_CPPLINT)
 
 if(BUILD_USE_DOXYGEN)
 	add_custom_command(TARGET simo3d
-					   PRE_LINK
-					   COMMAND ${DOXYGEN_EXECUTABLE} ARGS ${CMAKE_CURRENT_BINARY_DIR}/../Doxyfile
-					   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-					   COMMENT "Running Doxygen" VERBATIM)
+					           PRE_LINK
+				        	   COMMAND ${DOXYGEN_EXECUTABLE} ARGS ${CMAKE_CURRENT_BINARY_DIR}/../Doxyfile
+				        	   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+			        		   COMMENT "Running Doxygen" VERBATIM)
 endif(BUILD_USE_DOXYGEN)
