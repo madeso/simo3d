@@ -4,6 +4,12 @@
 #include "wx.h"
 #include <wx/glcanvas.h>
 
+// x11 header included by the gtk canvas defines Bool and that interfers with
+// other code and is also ugly
+#ifdef Bool
+#undef Bool
+#endif
+
 #include "mainframe.h"
 
 class View : public wxGLCanvas {
