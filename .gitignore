@@ -9,4 +9,5 @@ dist/*.ilk
 dist/*.pdb
 dist/*.exe
 dist/simo3d-debug
+dist/dna.txt
 
