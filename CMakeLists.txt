@@ -7,7 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+    "${PROJECT_SOURCE_DIR}/cmake-modules")
 
 option(BUILD_USE_CLANG_FORMAT "Add clang format to the build" OFF)
 option(BUILD_USE_CPPLINT "Add cpplint to the build" OFF)
@@ -24,17 +25,18 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 # ADD_DEFINITIONS(/DHAVE_TR1_TYPE_TRAITS)
 
 if(${APPLE})
-	# disabling http://stackoverflow.com/questions/32626171/xcode-7-how-to-suppress-warning-overrides-a-member-function-but-is-not-marked
-	# that apple-clang spews out for wx headers
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+  # disabling http://stackoverflow.com/questions/32626171/xcode-7-how-to-suppress-warning-overrides-a-member-function-but-is-not-marked
+  # that apple-clang spews out for wx headers
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 endif()
 
 # compiler flags
 if(${MSVC})
 	add_definitions(/D _CRT_SECURE_NO_WARNINGS)
 
-	# character set to Not Set=ASCII/SBCS http://public.kitware.com/Bug/view.php?id=12189
+	# character set to Not Set=ASCII/SBCS
+  # http://public.kitware.com/Bug/view.php?id=12189
 	add_definitions(/D _SBCS)
 endif()
 
