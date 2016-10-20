@@ -5,8 +5,6 @@
 #include <cml/cml.h>
 #include <vector>
 
-typedef std::vector<int> IntList;
-
 struct vec3 {
   vec3(float ax, float ay, float az) : x(ax), y(ay), z(az) {}
 
@@ -21,27 +19,32 @@ struct vec3 {
 
   float* data() { return array; }
   const float* const data() const { return array; }
+
+  vec3 normalized() const;
+  float length() const;
+  float length_squared() const;
 };
-typedef std::vector<vec3> Vec3List;
+
+vec3 operator*(const vec3& lhs, float rhs);
+vec3 operator*(float lhs, const vec3& rhs);
+vec3 operator/(const vec3& lhs, float rhs);
 
 class Face {
  public:
-  IntList indices;
+  std::vector<int> indices;
 };
-typedef std::vector<Face> FaceList;
 
 class Mesh {
  public:
   std::string name;
-  Vec3List vertices;
-  Vec3List normals;
-  FaceList faces;
+  std::vector<vec3> vertices;
+  std::vector<vec3> normals;
+  std::vector<Face> faces;
 };
-typedef std::vector<Mesh> MeshList;
 
 class Data {
  public:
-  MeshList meshes;
+  std::vector<Mesh> meshes;
   void import(const std::string& path);
   void render();
 };

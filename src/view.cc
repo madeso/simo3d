@@ -88,6 +88,8 @@ void View::OnPaint(wxPaintEvent& WXUNUSED(event)) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
+  glEnable(GL_LIGHT1);
+  glDisable(GL_CULL_FACE);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();

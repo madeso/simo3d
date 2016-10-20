@@ -9,6 +9,26 @@
 #include "wx.h"
 #include "wxgl.h"
 
+vec3 vec3::normalized() const {
+  return *this / length();
+}
+float vec3::length() const {
+  return sqrt(length_squared());
+}
+float vec3::length_squared() const {
+  return x*x + y*y + z*z;
+}
+
+vec3 operator*(const vec3& lhs, float rhs) {
+  return vec3(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs);
+}
+vec3 operator*(float lhs, const vec3& rhs) {
+  return rhs * lhs;
+}
+vec3 operator/(const vec3& lhs, float rhs) {
+  return lhs * (1.0f / rhs);
+}
+
 namespace {
 void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
   t.reserve(c);
@@ -45,11 +65,16 @@ void Data::import(const std::string& path) {
       vecopy(mesh.normals, amesh->mNormals, amesh->mNumVertices);
     }
 
+    for(vec3& n: mesh.normals) {
+      n = n.normalized();
+    }
+
     for (unsigned int iface = 0; iface < amesh->mNumFaces; ++iface) {
       const aiFace& aface = amesh->mFaces[iface];
       Face face;
       for (unsigned int i = 0; i < aface.mNumIndices; ++i) {
         face.indices.push_back(aface.mIndices[i]);
+
       }
       mesh.faces.push_back(face);
     }
