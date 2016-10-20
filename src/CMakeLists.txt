@@ -39,10 +39,10 @@ SET(src_lua
 FIND_PACKAGE(wxWidgets COMPONENTS core base gl)
 INCLUDE( "${wxWidgets_USE_FILE}" )
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/external/lua/src/)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/external/sol2/)
+INCLUDE_DIRECTORIES(SYSTEM ${CMAKE_SOURCE_DIR}/external/lua/src/)
+INCLUDE_DIRECTORIES(SYSTEM ${CMAKE_SOURCE_DIR}/external/sol2/)
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE_DIRECTORIES(SYSTEM ${CMAKE_CURRENT_BINARY_DIR})
 PROTOBUF_GENERATE_CPP(GUI_PROTO_SRCS GUI_PROTO_HDRS gui.proto)
 SET(app_src ${app_src_glob} "${PROJECT_BINARY_DIR}/simo3d-config.h" gui.proto)
 
@@ -60,7 +60,7 @@ SOURCE_GROUP(cmake FILES "${PROJECT_SOURCE_DIR}/simo3d-config-in.h")
 
 SET(all_src ${app_src} ${src_lua} "${PROJECT_SOURCE_DIR}/simo3d-config-in.h" ${src_glew} ${src_soil} ${src_jsoncpp} ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS}  ${pbjson_src})
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/external/pbjson/src/)
+INCLUDE_DIRECTORIES(SYSTEM ${CMAKE_SOURCE_DIR}/external/pbjson/src/)
 
 MESSAGE(STATUS "Linking with OpenGL ${OPENGL_LIBRARIES}")
 
