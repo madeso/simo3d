@@ -18,8 +18,10 @@ function scalemesh(s)
 end
 
 function render_face_and_normals()
-  render.faces_shaded()
-  render.normals()
+  -- render.faces_shaded()
+  -- render.normals()
+  -- render.edges(Rgba.White())
+  render.points(Rgba.new(1,0,0))
 end
 
 render_func = render_face_and_normals
