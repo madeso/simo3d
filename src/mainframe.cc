@@ -121,10 +121,17 @@ void MainFrame::RunCommand(wxCommandEvent& ev) {
 }
 
 void MainFrame::OnActivated(wxActivateEvent& evt) {
+  static int inside = 0;
+
   if (evt.GetActive() == false) return;
   evt.Skip();
 
+  if( inside > 0) {
+    inside -= 1;
+    return;
+  }
   if (false == library_.reload()) {
+    inside += 1;
     wxMessageBox("Failed to reload scripts, see console for details",
                  "SiMo error", wxOK | wxICON_ERROR, this);
   }
