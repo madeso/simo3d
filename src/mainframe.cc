@@ -70,7 +70,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
                            wxSP_LIVE_UPDATE | wxSP_3DBORDER);
   split->SetSashGravity(1.0);
 
-  mView = new View(split, &mData);
+  mView = new View(split, this, &mData);
 
   log_ = new wxTextCtrl(split, wxID_ANY, "", wxDefaultPosition, wxSize(0, 60),
                         wxTE_READONLY | wxHSCROLL | wxTE_MULTILINE);
@@ -99,6 +99,14 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos,
 
   if( loaded == false) {
     AddLog("No script files loaded, is this correct?");
+  }
+}
+
+void MainFrame::SetRenderError(const std::string& err) {
+  if( err != lastError) {
+    lastError = err;
+    AddLog(err);
+    SetStatusText(err);
   }
 }
 
@@ -148,3 +156,5 @@ void MainFrame::OnActivated(wxActivateEvent& evt) {
 }
 
 Script& MainFrame::script() { return script_; }
+
+View& MainFrame::view() { assert(mView); return *mView; }

@@ -1,4 +1,7 @@
+#include <sol.hpp>
 #include "view.h"
+
+#include <exception>
 
 #if wxUSE_GLCANVAS
 #pragma message("wxGL is included")
@@ -21,9 +24,9 @@ EVT_MOTION(View::OnMotion)
 EVT_MOUSEWHEEL(View::OnWheel)
 END_EVENT_TABLE()
 
-View::View(wxWindow* parent, Data* data)
+View::View(wxWindow* parent, MainFrame* main, Data* data)
     : wxGLCanvas(parent, wxID_ANY, nullptr),
-      mData(data),
+      main_(main), mData(data),
       rotX(0),
       rotY(0),
       down(false),
@@ -97,7 +100,7 @@ void View::OnPaint(wxPaintEvent& WXUNUSED(event)) {
   int height = 0;
   GetClientSize(&width, &height);
   if (height == 0) height = 1;
-  const double aspectRatio = (float)width / height;
+  const double aspectRatio = (float) width / height;
   const double fieldOfView = 45.0;
 
   glMatrixMode(GL_PROJECTION);
@@ -120,7 +123,17 @@ void View::OnPaint(wxPaintEvent& WXUNUSED(event)) {
   /* clear color and depth buffers */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  mData->render();
+  std::string m;
+  try {
+    sol::optional<std::function<void()>> render_func = main_->script().state()["render_func"];
+    if (render_func) {
+      (*render_func)();
+    }
+  }
+  catch(std::exception& x) {
+    m = x.what();
+  }
+  main_->SetRenderError(m);
 
   glFlush();
   SwapBuffers();
@@ -136,4 +149,76 @@ void View::OnSize(wxSizeEvent& event) {
 
 void View::OnEraseBackground(wxEraseEvent& WXUNUSED(event)) {
   // Do nothing, to avoid flashing.
+}
+
+void View::DrawNormals() {
+  glDisable(GL_LIGHTING);
+  for (const Mesh& m : mData->meshes) {
+    for (const Face& f : m.faces) {
+      if(f.indices.size() < 3 ) continue;
+
+      glBegin(GL_LINES);
+      for (int i : f.indices) {
+        vec3 e = m.vertices[i] + ( m.normals[i] * 10.0f );
+        glVertex3fv(e.data());
+        glVertex3fv(m.vertices[i].data());
+      }
+      glEnd();
+    }
+  }
+  glEnable(GL_LIGHTING);
+}
+
+void View::DrawEdges() {
+  for (const Mesh& m : mData->meshes) {
+    for (const Face& f : m.faces) {
+      if(f.indices.size() < 3 ) continue;
+
+      glBegin(GL_LINE_LOOP);
+      for (int i : f.indices) {
+        glVertex3fv(m.vertices[i].data());
+      }
+      glEnd();
+    }
+  }
+}
+
+void View::DrawPoints() {
+  glBegin(GL_POINTS);
+  for (const Mesh& m : mData->meshes) {
+    for (const vec3& v : m.vertices) {
+      glVertex3fv(v.data());
+    }
+  }
+  glEnd();
+}
+
+void View::DrawFaces() {
+  for (const Mesh& m : mData->meshes) {
+    for (const Face& f : m.faces) {
+      int type = GL_POINTS;
+
+      switch (f.indices.size()) {
+        case 1:
+          continue;
+        case 2:
+          continue;
+        case 3:
+          type = GL_TRIANGLES;
+          break;
+        default:
+          type = GL_POLYGON;
+          break;
+      }
+
+      glBegin(type);
+      for (int i : f.indices) {
+        if (m.normals.empty() == false) {
+          glNormal3fv(m.normals[i].data());
+        }
+        glVertex3fv(m.vertices[i].data());
+      }
+      glEnd();
+    }
+  }
 }

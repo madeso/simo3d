@@ -16,3 +16,10 @@ function scalemesh(s)
     end
   end
 end
+
+function render_face_and_normals()
+  render.faces()
+  render.normals()
+end
+
+render_func = render_face_and_normals

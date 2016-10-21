@@ -19,6 +19,10 @@ float vec3::length_squared() const {
   return x*x + y*y + z*z;
 }
 
+vec3 operator+(const vec3& lhs, const vec3& rhs) {
+  return vec3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+}
+
 vec3 operator*(const vec3& lhs, float rhs) {
   return vec3(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs);
 }

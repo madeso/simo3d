@@ -16,7 +16,7 @@ class View : public wxGLCanvas {
   friend class MainFrame;
 
  public:
-  View(wxWindow* parent, Data* data);
+  View(wxWindow* parent, MainFrame* main, Data* data);
 
   ~View();
 
@@ -34,6 +34,10 @@ class View : public wxGLCanvas {
   void OnWheel(wxMouseEvent& e);
 
   void Invalidate();
+  void DrawNormals();
+  void DrawEdges();
+  void DrawPoints();
+  void DrawFaces();
 
  private:
   float rotX;
@@ -43,6 +47,7 @@ class View : public wxGLCanvas {
   long lasty;
   bool down;
   Data* mData;
+  MainFrame* main_;
 
   wxGLContext rc;
   DECLARE_EVENT_TABLE()

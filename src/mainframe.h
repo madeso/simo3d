@@ -29,13 +29,17 @@ class MainFrame : public wxFrame {
   void AddLog(const std::string& str);
   void AddLogWithoutEndline(const std::string& str);
 
+  void SetRenderError(const std::string& err);
+
   Script& script();
+  View& view();
 
  private:
   static MainFrame* sInstance;
 
   Data mData;
   View* mView;
+  std::string lastError;
 
   std::string getResponse(int id) const;
 

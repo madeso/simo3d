@@ -2,6 +2,7 @@
 #include "mainframe.h"
 #include "data.h"
 #include "script.h"
+#include "view.h"
 
 #include <wx/textdlg.h>
 
@@ -50,6 +51,22 @@ std::string getstring(const std::string& title) {
   }
 }
 
+void Invalidate() {
+  MainFrame::Get()->view().Invalidate();
+}
+void DrawNormals() {
+  MainFrame::Get()->view().DrawNormals();
+}
+void DrawEdges() {
+  MainFrame::Get()->view().DrawEdges();
+}
+void DrawPoints() {
+  MainFrame::Get()->view().DrawPoints();
+}
+void DrawFaces() {
+  MainFrame::Get()->view().DrawFaces();
+}
+
 Data& currentfile() { return MainFrame::Get()->getData(); }
 
 void AddLog(const std::string& str) { MainFrame::Get()->AddLog(str); }
@@ -72,6 +89,13 @@ void LoadFunctions(Script* script) {
   state["file"] = &currentfile;
   state["logline"] = &AddLog;
   state["log"] = &AddLogWithoutEndline;
+
+  sol::table render_table = state.create_named_table("render");
+  render_table["invalidate"] = &Invalidate;
+  render_table["normals"] = &DrawNormals;
+  render_table["edges"] = &DrawEdges;
+  render_table["points"] = &DrawPoints;
+  render_table["faces"] = &DrawFaces;
 
   state.new_usertype<Data>("Data",
                            "new", sol::no_constructor,
