@@ -2,12 +2,15 @@
 
 #include "script.h"
 
+#include <wx/stdpaths.h>
+#include <wx/dir.h>
+
 #include <wx/filesys.h>
 
 namespace {
-wxDateTime GetModificationDateFor(const std::string& file) {
+wxDateTime GetModificationDateFor(const wxString& file) {
   wxFileSystem fs;
-  wxFSFile* f = fs.OpenFile(file.c_str());
+  wxFSFile* f = fs.OpenFile(file);
   if (f) {
     const wxDateTime d = f->GetModificationTime();
     delete f;
@@ -17,49 +20,61 @@ wxDateTime GetModificationDateFor(const std::string& file) {
 }
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-ScriptEntry::ScriptEntry(const std::string& file, const wxDateTime& date)
-    : file_(file), date_(date) {}
-
-const std::string& ScriptEntry::file() const { return file_; }
-
-const wxDateTime& ScriptEntry::date() const { return date_; }
-
-void ScriptEntry::set_file(const std::string& f) { file_ = f; }
-
-void ScriptEntry::set_date(const wxDateTime& d) { date_ = d; }
-
-//////////////////////////////////////////////////////////////////////////
-
-ScriptLib::ScriptLib(Script* script) : script_(script) {}
-
-bool ScriptLib::load(const std::string& file) {
-  if (compile(file)) {
-    entries_.push_back(ScriptEntry(file, GetModificationDateFor(file)));
-    return true;
-  } else
-    return false;
+Paths::Paths() {
+  directories.push_back(wxGetCwd());
+  directories.push_back(wxStandardPaths::Get().GetUserDataDir());
+  directories.push_back(wxStandardPaths::Get().GetResourcesDir());
 }
 
-bool ScriptLib::reload() {
-  bool ret = true;
+std::vector<wxString> Paths::allFiles(const wxString& pattern) const {
+  std::vector<wxString> r;
 
-  for (auto& entry : entries_) {
-    const auto newdate = GetModificationDateFor(entry.file());
-    if (entry.date() < newdate) {
-      const bool compiled = compile(entry.file());
-      if (compiled) {
-        entry.set_date(newdate);
-      } else {
-        ret = false;
-      }
+  for(const wxString& d: directories) {
+    wxArrayString files;
+    wxDir::GetAllFiles(d, &files, pattern);
+    for (const wxString &file : files) {
+      r.push_back(file);
     }
   }
 
-  return ret;
+  return r;
 }
 
-bool ScriptLib::compile(const std::string& file) {
-  return script_->RunFile(file);
+wxString Paths::find(const wxString& path) const {
+  for(const wxString& d : directories) {
+    const wxString cwd = d + path;
+    if( wxFileExists(cwd) ) return cwd;
+  }
+
+  // couldnt find file, just return the default
+  return path;
+}
+
+ScriptLib::ScriptLib(Script* script, Paths* paths) : script_(*script), paths_(*paths) {
+}
+
+bool ScriptLib::reload() {
+  StringTimeMap loaded;
+  bool loadStatus = true;
+  const auto& files = paths_.allFiles("*.lua");
+  for(const wxString& file: files) {
+    const wxDateTime m = GetModificationDateFor(file);
+    auto found = loadedFiles_.find(file);
+
+    if( found != loadedFiles_.end() ) {
+      if( found->second >= m ) {
+        loaded.insert(StringTimePair(file, found->second));
+        continue;
+      }
+    }
+
+    if( script_.RunFile(file.c_str().AsChar()) ) {
+      loaded.insert(StringTimePair(file, m));
+    }
+    else {
+      loadStatus = false;
+    }
+  }
+  loadedFiles_ = loaded;
+  return loadStatus && !loadedFiles_.empty();
 }

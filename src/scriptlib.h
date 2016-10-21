@@ -3,37 +3,34 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "wx.h"
 
 class Script;
 
-class ScriptEntry {
+class Paths {
  public:
-  ScriptEntry(const std::string& file, const wxDateTime& date);
-
-  const std::string& file() const;
-  const wxDateTime& date() const;
-
-  void set_file(const std::string& f);
-  void set_date(const wxDateTime& d);
-
+  Paths();
+  std::vector<wxString> allFiles(const wxString& pattern) const;
+  wxString find(const wxString& relative) const;
  private:
-  std::string file_;
-  wxDateTime date_;
+  std::vector<wxString> directories;
 };
+
+typedef std::map <wxString, wxDateTime> StringTimeMap;
+typedef std::pair<wxString, wxDateTime> StringTimePair;
 
 class ScriptLib {
  public:
-  explicit ScriptLib(Script* script);
+  ScriptLib(Script* script, Paths* paths);
 
-  bool load(const std::string& file);
   bool reload();
-
  private:
-  bool compile(const std::string& file);
-  std::vector<ScriptEntry> entries_;
-  Script* script_;
+  Script& script_;
+  Paths& paths_;
+
+  StringTimeMap loadedFiles_;
 };
 
 #endif

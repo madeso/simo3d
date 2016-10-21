@@ -49,6 +49,7 @@ class MainFrame : public wxFrame {
   bool loadGui(const std::string& file);
 
   Script script_;
+  Paths paths_;
   wxTextCtrl* log_;
   ScriptLib library_;
 };
