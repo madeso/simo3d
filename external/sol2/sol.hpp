@@ -5456,6 +5456,7 @@ namespace sol {
 			static T* get_no_nil(lua_State* L, int index, record& tracking) {
 				tracking.use(1);
 				void** pudata = static_cast<void**>(lua_touserdata(L, index));
+				if( pudata == NULL ) throw "expected user data but got nil";
 				void* udata = *pudata;
 				return get_no_nil_from(L, udata, index, tracking);
 			}
