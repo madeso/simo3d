@@ -24,8 +24,10 @@ EVT_MOTION(View::OnMotion)
 EVT_MOUSEWHEEL(View::OnWheel)
 END_EVENT_TABLE()
 
+int wx_gl_args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
+
 View::View(wxWindow* parent, MainFrame* main, Data* data)
-    : wxGLCanvas(parent, wxID_ANY, nullptr),
+    : wxGLCanvas(parent, wxID_ANY, wx_gl_args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE),
       main_(main), mData(data),
       rotX(0),
       rotY(0),
@@ -89,10 +91,12 @@ void View::OnPaint(wxPaintEvent& WXUNUSED(event)) {
   // SetCurrent();
   // Init OpenGL once, but after SetCurrent
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
-  glDisable(GL_CULL_FACE);
+  glEnable(GL_CULL_FACE);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
