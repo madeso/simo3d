@@ -54,20 +54,20 @@ std::string getstring(const std::string& title) {
 void Invalidate() {
   MainFrame::Get()->view().Invalidate();
 }
-void DrawNormals() {
-  MainFrame::Get()->view().DrawNormals(White());
+void DrawNormals(const rgba& c) {
+  MainFrame::Get()->view().DrawNormals(c);
 }
-void DrawEdges() {
-  MainFrame::Get()->view().DrawEdges(White());
+void DrawEdges(const rgba& c) {
+  MainFrame::Get()->view().DrawEdges(c);
 }
-void DrawPoints() {
-  MainFrame::Get()->view().DrawPoints(White());
+void DrawPoints(const rgba& c) {
+  MainFrame::Get()->view().DrawPoints(c);
 }
 void DrawFacesShaded() {
   MainFrame::Get()->view().DrawFacesShaded(material());
 }
-void DrawFacesPlain() {
-  MainFrame::Get()->view().DrawFacesPlain(White());
+void DrawFacesPlain(const rgba& c) {
+  MainFrame::Get()->view().DrawFacesPlain(c);
 }
 
 Data& currentfile() { return MainFrame::Get()->getData(); }
@@ -114,4 +114,12 @@ void LoadFunctions(Script* script) {
                              "x", &vec3::x,
                              "y", &vec3::y,
                              "z", &vec3::z);
+  state.new_usertype<rgba>("Rgba",
+                             sol::constructors<sol::types<>, sol::types<float, float, float>, sol::types<float, float, float, float>>(),
+                             "White", sol::factories(&White),
+                             "Black", sol::factories(&Black),
+                             "r", &rgba::r,
+                             "g", &rgba::g,
+                             "b", &rgba::b,
+                             "a", &rgba::a);
 }
