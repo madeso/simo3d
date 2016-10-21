@@ -18,7 +18,7 @@ function scalemesh(s)
 end
 
 function render_face_and_normals()
-  render.faces()
+  render.faces_shaded()
   render.normals()
 end
 

@@ -151,8 +151,25 @@ void View::OnEraseBackground(wxEraseEvent& WXUNUSED(event)) {
   // Do nothing, to avoid flashing.
 }
 
-void View::DrawNormals() {
+void ClearBackground(const vec3& c);
+void ClearDepth();
+
+void Apply(const rgba& color) {
+  glColor4fv(color.array);
+}
+
+void Apply(const material& m) {
+  int face = GL_FRONT_AND_BACK;
+  glMaterialfv(face, GL_AMBIENT, m.ambient.array);
+  glMaterialfv(face, GL_DIFFUSE, m.diffuse.array);
+  glMaterialfv(face, GL_SPECULAR, m.specular.array);
+  glMaterialfv(face, GL_EMISSION, m.emission.array);
+  glMaterialfv(face, GL_SHININESS, &m.shininess);
+}
+
+void View::DrawNormals(const rgba& c) {
   glDisable(GL_LIGHTING);
+  Apply(c);
   for (const Mesh& m : mData->meshes) {
     for (const Face& f : m.faces) {
       if(f.indices.size() < 3 ) continue;
@@ -169,7 +186,9 @@ void View::DrawNormals() {
   glEnable(GL_LIGHTING);
 }
 
-void View::DrawEdges() {
+void View::DrawEdges(const rgba& c) {
+  glDisable(GL_LIGHTING);
+  Apply(c);
   for (const Mesh& m : mData->meshes) {
     for (const Face& f : m.faces) {
       if(f.indices.size() < 3 ) continue;
@@ -181,9 +200,12 @@ void View::DrawEdges() {
       glEnd();
     }
   }
+  glEnable(GL_LIGHTING);
 }
 
-void View::DrawPoints() {
+void View::DrawPoints(const rgba& c) {
+  glDisable(GL_LIGHTING);
+  Apply(c);
   glBegin(GL_POINTS);
   for (const Mesh& m : mData->meshes) {
     for (const vec3& v : m.vertices) {
@@ -191,27 +213,40 @@ void View::DrawPoints() {
     }
   }
   glEnd();
+  glEnable(GL_LIGHTING);
 }
 
-void View::DrawFaces() {
+void View::DrawFacesPlain(const rgba& c) {
+  glDisable(GL_LIGHTING);
+  Apply(c);
   for (const Mesh& m : mData->meshes) {
     for (const Face& f : m.faces) {
-      int type = GL_POINTS;
-
-      switch (f.indices.size()) {
-        case 1:
-          continue;
-        case 2:
-          continue;
-        case 3:
-          type = GL_TRIANGLES;
-          break;
-        default:
-          type = GL_POLYGON;
-          break;
+      if(f.indices.size() < 3) {
+        continue;
       }
 
-      glBegin(type);
+      glBegin(GL_POLYGON);
+      for (int i : f.indices) {
+        if (m.normals.empty() == false) {
+          glNormal3fv(m.normals[i].data());
+        }
+        glVertex3fv(m.vertices[i].data());
+      }
+      glEnd();
+    }
+  }
+  glEnable(GL_LIGHTING);
+}
+
+void View::DrawFacesShaded(const material& c) {
+  Apply(c);
+  for (const Mesh& m : mData->meshes) {
+    for (const Face& f : m.faces) {
+      if(f.indices.size() < 3) {
+        continue;
+      }
+
+      glBegin(GL_POLYGON);
       for (int i : f.indices) {
         if (m.normals.empty() == false) {
           glNormal3fv(m.normals[i].data());

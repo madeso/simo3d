@@ -33,11 +33,14 @@ class View : public wxGLCanvas {
   void OnMotion(wxMouseEvent& e);
   void OnWheel(wxMouseEvent& e);
 
+  void ClearBackground(const rgba& c);
+  void ClearDepth();
   void Invalidate();
-  void DrawNormals();
-  void DrawEdges();
-  void DrawPoints();
-  void DrawFaces();
+  void DrawNormals(const rgba& c);
+  void DrawEdges(const rgba& c);
+  void DrawPoints(const rgba& c);
+  void DrawFacesShaded(const material& c);
+  void DrawFacesPlain(const rgba& c);
 
  private:
   float rotX;

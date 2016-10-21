@@ -55,16 +55,19 @@ void Invalidate() {
   MainFrame::Get()->view().Invalidate();
 }
 void DrawNormals() {
-  MainFrame::Get()->view().DrawNormals();
+  MainFrame::Get()->view().DrawNormals(White());
 }
 void DrawEdges() {
-  MainFrame::Get()->view().DrawEdges();
+  MainFrame::Get()->view().DrawEdges(White());
 }
 void DrawPoints() {
-  MainFrame::Get()->view().DrawPoints();
+  MainFrame::Get()->view().DrawPoints(White());
 }
-void DrawFaces() {
-  MainFrame::Get()->view().DrawFaces();
+void DrawFacesShaded() {
+  MainFrame::Get()->view().DrawFacesShaded(material());
+}
+void DrawFacesPlain() {
+  MainFrame::Get()->view().DrawFacesPlain(White());
 }
 
 Data& currentfile() { return MainFrame::Get()->getData(); }
@@ -95,7 +98,8 @@ void LoadFunctions(Script* script) {
   render_table["normals"] = &DrawNormals;
   render_table["edges"] = &DrawEdges;
   render_table["points"] = &DrawPoints;
-  render_table["faces"] = &DrawFaces;
+  render_table["faces_plain"] = &DrawFacesPlain;
+  render_table["faces_shaded"] = &DrawFacesShaded;
 
   state.new_usertype<Data>("Data",
                            "new", sol::no_constructor,
