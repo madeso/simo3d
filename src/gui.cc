@@ -33,13 +33,13 @@ wxString SaveProtoJson(const google::protobuf::Message& t,
   return "";
 }
 
-wxMenu* loadMenu(MainFrame* mf, const simo::Menu& menuEl, IdGenerator* idg,
+wxMenu* loadMenu(MainFrame* mf, const gui::Menu& menuEl, IdGenerator* idg,
                  std::string* title) {
   wxMenu* menu = new wxMenu;
 
   *title = menuEl.title();
 
-  for (const simo::MenuItem& itemEl : menuEl.items()) {
+  for (const gui::MenuItem& itemEl : menuEl.items()) {
     if (itemEl.has_button()) {
       auto& button = itemEl.button();
       std::string display = button.display();
@@ -78,7 +78,7 @@ wxMenu* loadMenu(MainFrame* mf, const simo::Menu& menuEl, IdGenerator* idg,
 bool LoadGui(const std::string& file, MainFrame* frame) {
   IdGenerator idg;
 
-  simo::Gui gui;
+  gui::Gui gui;
   wxString r = LoadProtoJson(&gui, file.c_str());
   if (r.IsEmpty() == false) {
     frame->AddLog(r.c_str().AsChar());
@@ -87,7 +87,7 @@ bool LoadGui(const std::string& file, MainFrame* frame) {
 
   wxMenuBar* menuBar = nullptr;
 
-  for (const simo::Menu& menu : gui.menu()) {
+  for (const gui::Menu& menu : gui.menu()) {
     if (menuBar == nullptr) menuBar = new wxMenuBar;
     std::string name = "No Title";
     wxMenu* m = loadMenu(frame, menu, &idg, &name);

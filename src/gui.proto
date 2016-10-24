@@ -1,4 +1,4 @@
-package simo;
+package gui;
 
 message MenuButton {
 	optional string display = 1;
