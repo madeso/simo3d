@@ -37,8 +37,8 @@ class View : public wxGLCanvas {
   void ClearDepth();
   void Invalidate();
   void DrawNormals(const rgba& c);
-  void DrawEdges(const rgba& c);
-  void DrawPoints(const rgba& c);
+  void DrawEdges(const rgba& c, float width);
+  void DrawPoints(const rgba& c, float size);
   void DrawFacesShaded(const material& c);
   void DrawFacesPlain(const rgba& c);
 

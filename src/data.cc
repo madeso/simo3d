@@ -36,6 +36,8 @@ vec3 operator/(const vec3& lhs, float rhs) {
   return lhs * (1.0f / rhs);
 }
 
+Index::Index(int i) : vertex(i), normal(i), uv(i) {}
+
 namespace {
 void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
   t.reserve(c);
@@ -45,24 +47,57 @@ void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
 }
 }
 
+namespace {
+rgba C(aiColor3D c) {
+  return rgba(c.r, c.g, c.b);
+}
+}
+
 void Data::import(const std::string& path) {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(
-      path, aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices |
-                aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
+      path, aiProcess_ValidateDataStructure | aiProcess_FindInvalidData);
 
   if (!scene) {
     AddLog(importer.GetErrorString());
     throw std::runtime_error(importer.GetErrorString());
   }
 
-  if (scene->HasMeshes() == false) {
-    AddLog("non meshes not currently supported");
-    throw std::runtime_error("non meshes not currently supported");
-  }
-
   meshes.clear();
   meshes.reserve(scene->mNumMeshes);
+
+  materials.clear();
+  materials.reserve(scene->mNumMaterials);
+
+  for (unsigned int imat = 0; imat  < scene->mNumMaterials; ++imat ) {
+    material m;
+    aiMaterial* mat = scene->mMaterials[imat];
+
+    aiString name;
+    aiColor3D color;
+
+    mat->Get(AI_MATKEY_NAME, name);
+    m.name = name.C_Str();
+
+    if(AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_DIFFUSE, color)) {
+      m.diffuse = C(color);
+    }
+    if(AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_SPECULAR, color)) {
+      m.specular = C(color);
+    }
+    if(AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_AMBIENT, color)) {
+      m.ambient = C(color);
+    }
+    if(AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_EMISSIVE, color)) {
+      m.emission = C(color);
+    }
+
+    mat->Get(AI_MATKEY_SHININESS, m.shininess);
+
+    // get textures
+    materials.push_back(m);
+  }
+
   for (unsigned int imesh = 0; imesh < scene->mNumMeshes; ++imesh) {
     aiMesh* amesh = scene->mMeshes[imesh];
     Mesh mesh;
@@ -72,6 +107,14 @@ void Data::import(const std::string& path) {
       vecopy(mesh.normals, amesh->mNormals, amesh->mNumVertices);
     }
 
+    for(unsigned int ti=0; ti<8; ++ti) {
+      if( amesh->mTextureCoords[ti] ) {
+        std::vector<vec3> uv;
+        vecopy(uv, amesh->mTextureCoords[ti], amesh->mNumUVComponents[ti]);
+        mesh.uvs.push_back(uv);
+      }
+    }
+
     for(vec3& n: mesh.normals) {
       n = n.normalized();
     }
@@ -79,46 +122,14 @@ void Data::import(const std::string& path) {
     for (unsigned int iface = 0; iface < amesh->mNumFaces; ++iface) {
       const aiFace& aface = amesh->mFaces[iface];
       Face face;
+      face.material = amesh->mMaterialIndex;
       for (unsigned int i = 0; i < aface.mNumIndices; ++i) {
-        face.indices.push_back(aface.mIndices[i]);
-
+        Index index { aface.mIndices[i] };
+        face.indices.push_back(index);
       }
       mesh.faces.push_back(face);
     }
 
     meshes.push_back(mesh);
-  }
-}
-
-void Data::render() {
-  // glColor3f(1, 1, 1);
-  for (const Mesh& m : meshes) {
-    for (const Face& f : m.faces) {
-      int type = GL_POINTS;
-
-      switch (f.indices.size()) {
-        case 1:
-          type = GL_POINTS;
-          break;
-        case 2:
-          type = GL_LINES;
-          break;
-        case 3:
-          type = GL_TRIANGLES;
-          break;
-        default:
-          type = GL_POLYGON;
-          break;
-      }
-
-      glBegin(type);
-      for (int i : f.indices) {
-        if (m.normals.empty() == false) {
-          glNormal3fv(m.normals[i].data());
-        }
-        glVertex3fv(m.vertices[i].data());
-      }
-      glEnd();
-    }
   }
 }

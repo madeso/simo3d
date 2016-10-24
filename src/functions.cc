@@ -57,11 +57,11 @@ void Invalidate() {
 void DrawNormals(const rgba& c) {
   MainFrame::Get()->view().DrawNormals(c);
 }
-void DrawEdges(const rgba& c) {
-  MainFrame::Get()->view().DrawEdges(c);
+void DrawEdges(const rgba& c, float width) {
+  MainFrame::Get()->view().DrawEdges(c, width);
 }
-void DrawPoints(const rgba& c) {
-  MainFrame::Get()->view().DrawPoints(c);
+void DrawPoints(const rgba& c, float size) {
+  MainFrame::Get()->view().DrawPoints(c, size);
 }
 void DrawFacesShaded() {
   MainFrame::Get()->view().DrawFacesShaded(material());

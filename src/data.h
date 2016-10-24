@@ -48,12 +48,21 @@ struct rgba {
 rgba White();
 rgba Black();
 
+struct texture {
+  std::string path;
+  int texture_coord;
+};
+
 struct material {
+  std::string name;
   rgba ambient; // specify the ambient RGBA reflectance of the material. -1 to +1
   rgba diffuse; // specify the diffuse RGBA reflectance of the material. -1 to +1
   rgba specular;  // specify the specular RGBA reflectance of the material. -1 to +1
   rgba emission; // specify the RGBA emitted light intensity of the material.-1 to +1
   float shininess; // specifies the RGBA specular exponent of the material. 0 to 128 (clamped)
+
+  std::string shader;
+  std::vector<texture> textures;
 
   material() : ambient(0.2f, 0.2f, 0.2f, 1.0f), diffuse(0.8f, 0.8f, 0.8f, 1.0f), specular(0.0f, 0.0f, 0.0f, 1.0f), emission(0.0f, 0.0f, 0.0f, 1.0f), shininess(0.0f) {}
 };
@@ -63,24 +72,36 @@ vec3 operator*(const vec3& lhs, float rhs);
 vec3 operator*(float lhs, const vec3& rhs);
 vec3 operator/(const vec3& lhs, float rhs);
 
+struct Index {
+  explicit Index(int i);
+  int vertex;
+  int normal;
+  int uv;
+};
+
 class Face {
  public:
-  std::vector<int> indices;
+  std::vector<Index> indices;
+  int material;
 };
 
 class Mesh {
  public:
   std::string name;
+
   std::vector<vec3> vertices;
   std::vector<vec3> normals;
+  std::vector< std::vector<vec3> > uvs;
+
   std::vector<Face> faces;
 };
 
 class Data {
  public:
   std::vector<Mesh> meshes;
+  std::vector<material> materials;
+
   void import(const std::string& path);
-  void render();
 };
 
 #endif

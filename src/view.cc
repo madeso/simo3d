@@ -179,10 +179,10 @@ void View::DrawNormals(const rgba& c) {
       if(f.indices.size() < 3 ) continue;
 
       glBegin(GL_LINES);
-      for (int i : f.indices) {
-        vec3 e = m.vertices[i] + ( m.normals[i] * 10.0f );
+      for (auto i : f.indices) {
+        vec3 e = m.vertices[i.normal] + ( m.normals[i.normal] * 10.0f );
         glVertex3fv(e.data());
-        glVertex3fv(m.vertices[i].data());
+        glVertex3fv(m.vertices[i.normal].data());
       }
       glEnd();
     }
@@ -190,16 +190,17 @@ void View::DrawNormals(const rgba& c) {
   glEnable(GL_LIGHTING);
 }
 
-void View::DrawEdges(const rgba& c) {
+void View::DrawEdges(const rgba& c, float width) {
   glDisable(GL_LIGHTING);
   Apply(c);
+  glLineWidth(width);
   for (const Mesh& m : mData->meshes) {
     for (const Face& f : m.faces) {
       if(f.indices.size() < 3 ) continue;
 
       glBegin(GL_LINE_LOOP);
-      for (int i : f.indices) {
-        glVertex3fv(m.vertices[i].data());
+      for (auto i : f.indices) {
+        glVertex3fv(m.vertices[i.vertex].data());
       }
       glEnd();
     }
@@ -207,9 +208,10 @@ void View::DrawEdges(const rgba& c) {
   glEnable(GL_LIGHTING);
 }
 
-void View::DrawPoints(const rgba& c) {
+void View::DrawPoints(const rgba& c, float size) {
   glDisable(GL_LIGHTING);
   Apply(c);
+  glPointSize(size);
   glBegin(GL_POINTS);
   for (const Mesh& m : mData->meshes) {
     for (const vec3& v : m.vertices) {
@@ -230,11 +232,11 @@ void View::DrawFacesPlain(const rgba& c) {
       }
 
       glBegin(GL_POLYGON);
-      for (int i : f.indices) {
+      for (auto i : f.indices) {
         if (m.normals.empty() == false) {
-          glNormal3fv(m.normals[i].data());
+          glNormal3fv(m.normals[i.normal].data());
         }
-        glVertex3fv(m.vertices[i].data());
+        glVertex3fv(m.vertices[i.vertex].data());
       }
       glEnd();
     }
@@ -251,11 +253,11 @@ void View::DrawFacesShaded(const material& c) {
       }
 
       glBegin(GL_POLYGON);
-      for (int i : f.indices) {
+      for (auto i : f.indices) {
         if (m.normals.empty() == false) {
-          glNormal3fv(m.normals[i].data());
+          glNormal3fv(m.normals[i.normal].data());
         }
-        glVertex3fv(m.vertices[i].data());
+        glVertex3fv(m.vertices[i.vertex].data());
       }
       glEnd();
     }
