@@ -155,34 +155,48 @@ void View::OnEraseBackground(wxEraseEvent& WXUNUSED(event)) {
   // Do nothing, to avoid flashing.
 }
 
-void ClearBackground(const vec3& c);
+void ClearBackground(const simo::rgba& c);
 void ClearDepth();
 
-void Apply(const rgba& color) {
-  glColor4fv(color.array);
+void Apply(const simo::rgba& color) {
+  glColor4f(color.r(), color.g(), color.b(), color.a());
 }
 
-void Apply(const material& m) {
+namespace {
+void SetGlMaterialf(int face, int id, const simo::rgba& c) {
+  GLfloat params[4] = {c.r(), c.g(), c.b(), c.a()};
+  glGetMaterialfv(face, id, params);
+}
+void glVertex3fv(const simo::vec3& v) {
+  glVertex3f(v.x(), v.y(), v.z());
+}
+void glNormal3fv(const simo::vec3& v) {
+  glNormal3f(v.x(), v.y(), v.z());
+}
+}
+
+void Apply(const simo::material& m) {
   int face = GL_FRONT_AND_BACK;
-  glMaterialfv(face, GL_AMBIENT, m.ambient.array);
-  glMaterialfv(face, GL_DIFFUSE, m.diffuse.array);
-  glMaterialfv(face, GL_SPECULAR, m.specular.array);
-  glMaterialfv(face, GL_EMISSION, m.emission.array);
-  glMaterialfv(face, GL_SHININESS, &m.shininess);
+  SetGlMaterialf(face, GL_AMBIENT, m.ambient());
+  SetGlMaterialf(face, GL_DIFFUSE, m.diffuse());
+  SetGlMaterialf(face, GL_SPECULAR, m.specular());
+  SetGlMaterialf(face, GL_EMISSION, m.emission());
+  GLfloat p = m.shininess();
+  glMaterialfv(face, GL_SHININESS, &p);
 }
 
-void View::DrawNormals(const rgba& c) {
+void View::DrawNormals(const simo::rgba& c) {
   glDisable(GL_LIGHTING);
   Apply(c);
-  for (const Mesh& m : mData->meshes) {
-    for (const Face& f : m.faces) {
-      if(f.indices.size() < 3 ) continue;
+  for (const simo::mesh& m : mData->data.meshes()) {
+    for (const simo::face& f : m.faces()) {
+      if(f.indices().size() < 3 ) continue;
 
       glBegin(GL_LINES);
-      for (auto i : f.indices) {
-        vec3 e = m.vertices[i.normal] + ( m.normals[i.normal] * 10.0f );
-        glVertex3fv(e.data());
-        glVertex3fv(m.vertices[i.normal].data());
+      for (auto i : f.indices()) {
+        simo::vec3 e = m.vertices(i.normal()) + ( m.normals(i.normal()) * 10.0f );
+        glVertex3fv(e);
+        glVertex3fv(m.vertices(i.normal()));
       }
       glEnd();
     }
@@ -190,17 +204,17 @@ void View::DrawNormals(const rgba& c) {
   glEnable(GL_LIGHTING);
 }
 
-void View::DrawEdges(const rgba& c, float width) {
+void View::DrawEdges(const simo::rgba& c, float width) {
   glDisable(GL_LIGHTING);
   Apply(c);
   glLineWidth(width);
-  for (const Mesh& m : mData->meshes) {
-    for (const Face& f : m.faces) {
-      if(f.indices.size() < 3 ) continue;
+  for (const simo::mesh& m : mData->data.meshes()) {
+    for (const simo::face& f : m.faces()) {
+      if(f.indices().size() < 3 ) continue;
 
       glBegin(GL_LINE_LOOP);
-      for (auto i : f.indices) {
-        glVertex3fv(m.vertices[i.vertex].data());
+      for (auto i : f.indices()) {
+        glVertex3fv(m.vertices(i.vertex()));
       }
       glEnd();
     }
@@ -208,35 +222,35 @@ void View::DrawEdges(const rgba& c, float width) {
   glEnable(GL_LIGHTING);
 }
 
-void View::DrawPoints(const rgba& c, float size) {
+void View::DrawPoints(const simo::rgba& c, float size) {
   glDisable(GL_LIGHTING);
   Apply(c);
   glPointSize(size);
   glBegin(GL_POINTS);
-  for (const Mesh& m : mData->meshes) {
-    for (const vec3& v : m.vertices) {
-      glVertex3fv(v.data());
+  for (const simo::mesh& m : mData->data.meshes()) {
+    for (const simo::vec3& v : m.vertices()) {
+      glVertex3fv(v);
     }
   }
   glEnd();
   glEnable(GL_LIGHTING);
 }
 
-void View::DrawFacesPlain(const rgba& c) {
+void View::DrawFacesPlain(const simo::rgba& c) {
   glDisable(GL_LIGHTING);
   Apply(c);
-  for (const Mesh& m : mData->meshes) {
-    for (const Face& f : m.faces) {
-      if(f.indices.size() < 3) {
+  for (const simo::mesh& m : mData->data.meshes()) {
+    for (const simo::face& f : m.faces()) {
+      if(f.indices().size() < 3) {
         continue;
       }
 
       glBegin(GL_POLYGON);
-      for (auto i : f.indices) {
-        if (m.normals.empty() == false) {
-          glNormal3fv(m.normals[i.normal].data());
+      for (auto i : f.indices()) {
+        if (m.normals().empty() == false) {
+          glNormal3fv(m.normals(i.normal()));
         }
-        glVertex3fv(m.vertices[i.vertex].data());
+        glVertex3fv(m.vertices(i.vertex()));
       }
       glEnd();
     }
@@ -244,20 +258,20 @@ void View::DrawFacesPlain(const rgba& c) {
   glEnable(GL_LIGHTING);
 }
 
-void View::DrawFacesShaded(const material& c) {
+void View::DrawFacesShaded(const simo::material& c) {
   Apply(c);
-  for (const Mesh& m : mData->meshes) {
-    for (const Face& f : m.faces) {
-      if(f.indices.size() < 3) {
+  for (const simo::mesh& m : mData->data.meshes()) {
+    for (const simo::face& f : m.faces()) {
+      if(f.indices().size() < 3) {
         continue;
       }
 
       glBegin(GL_POLYGON);
-      for (auto i : f.indices) {
-        if (m.normals.empty() == false) {
-          glNormal3fv(m.normals[i.normal].data());
+      for (auto i : f.indices()) {
+        if (m.normals().empty() == false) {
+          glNormal3fv(m.normals(i.normal()));
         }
-        glVertex3fv(m.vertices[i.vertex].data());
+        glVertex3fv(m.vertices(i.vertex()));
       }
       glEnd();
     }

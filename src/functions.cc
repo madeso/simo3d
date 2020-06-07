@@ -54,19 +54,19 @@ std::string getstring(const std::string& title) {
 void Invalidate() {
   MainFrame::Get()->view().Invalidate();
 }
-void DrawNormals(const rgba& c) {
+void DrawNormals(const simo::rgba& c) {
   MainFrame::Get()->view().DrawNormals(c);
 }
-void DrawEdges(const rgba& c, float width) {
+void DrawEdges(const simo::rgba& c, float width) {
   MainFrame::Get()->view().DrawEdges(c, width);
 }
-void DrawPoints(const rgba& c, float size) {
+void DrawPoints(const simo::rgba& c, float size) {
   MainFrame::Get()->view().DrawPoints(c, size);
 }
 void DrawFacesShaded() {
-  MainFrame::Get()->view().DrawFacesShaded(material());
+  MainFrame::Get()->view().DrawFacesShaded(DefaultMaterial());
 }
-void DrawFacesPlain(const rgba& c) {
+void DrawFacesPlain(const simo::rgba& c) {
   MainFrame::Get()->view().DrawFacesPlain(c);
 }
 
@@ -76,6 +76,13 @@ void AddLog(const std::string& str) { MainFrame::Get()->AddLog(str); }
 void AddLogWithoutEndline(const std::string& str) {
   MainFrame::Get()->AddLogWithoutEndline(str);
 }
+
+std::string vec3_ToString() {
+  // print(file().meshes.vertices.at(0))
+  return "dog dog";
+}
+
+typedef Array<simo::vec3, Mesh> MeshArray;
 
 void LoadFunctions(Script* script) {
   sol::state& state = script->state();
@@ -103,23 +110,30 @@ void LoadFunctions(Script* script) {
 
   state.new_usertype<Data>("Data",
                            "new", sol::no_constructor,
-                           "meshes", &Data::meshes);
+                           "meshes", sol::property(&Data::meshes));
+
+  /*
+  state.new_usertype<MeshArray>("Vec3Array",
+                           "new", sol::no_constructor,
+                           "at", &MeshArray::at,
+                           sol::meta_function::index, sol::property(&MeshArray::at, &MeshArray::set),
+                           sol::meta_function::length, sol::property(&MeshArray::size),
+                           "csize", sol::property(&MeshArray::size)
+  );*/
 
   state.new_usertype<Mesh>("Mesh",
                              "new", sol::no_constructor,
-                             "name", &Mesh::name,
-                             "vertices", &Mesh::vertices);
-  state.new_usertype<vec3>("vec3",
+                             "vertices", sol::property(&Mesh::vertices),
+                              sol::meta_function::to_string, &Mesh::toString);
+  state.new_usertype<simo::vec3>("vec3",
                              "new", sol::no_constructor,
-                             "x", &vec3::x,
-                             "y", &vec3::y,
-                             "z", &vec3::z);
-  state.new_usertype<rgba>("Rgba",
-                             sol::constructors<sol::types<>, sol::types<float, float, float>, sol::types<float, float, float, float>>(),
+                             "x", sol::property(&simo::vec3::x, &simo::vec3::set_x),
+                             "y", sol::property(&simo::vec3::y, &simo::vec3::set_y),
+                             "z", sol::property(&simo::vec3::z, &simo::vec3::set_z),
+                             sol::meta_function::to_string, &vec3_ToString);
+  state.new_usertype<simo::rgba>("Rgba",
+                             "new", sol::no_constructor,
+                             "Custom", sol::factories(&Color),
                              "White", sol::factories(&White),
-                             "Black", sol::factories(&Black),
-                             "r", &rgba::r,
-                             "g", &rgba::g,
-                             "b", &rgba::b,
-                             "a", &rgba::a);
+                             "Black", sol::factories(&Black));
 }

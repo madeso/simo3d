@@ -1,0 +1,73 @@
+package simo;
+
+message vec3 {
+  optional float x = 1;
+  optional float y = 2;
+  optional float z = 3;
+}
+
+message rgba {
+  optional float r = 1;
+  optional float g = 2;
+  optional float b = 3;
+  optional float a = 4;
+}
+
+message texture {
+  optional string path = 1;
+  optional int32 texture_coord = 2;
+}
+
+message material {
+  optional string name = 1;
+  optional rgba ambient = 2;
+  optional rgba diffuse = 3;
+  optional rgba specular = 4;
+  optional rgba emission = 5;
+  optional float shininess = 6;
+
+  optional string shader = 7;
+
+  repeated texture texture_none = 100;
+  repeated texture texture_diffuse = 101;
+  repeated texture texture_specular = 102;
+  repeated texture texture_ambient = 103;
+  repeated texture texture_emissive = 104;
+  repeated texture texture_height = 105;
+  repeated texture texture_normals = 106;
+  repeated texture texture_shininess = 107;
+  repeated texture texture_opacity = 108;
+  repeated texture texture_displacement = 109;
+  repeated texture texture_lightmap = 110;
+  repeated texture texture_reflection = 111;
+  repeated texture texture_unknown = 112;
+}
+
+message index {
+  optional int32 vertex = 1;
+  optional int32 normal = 2;
+  optional int32 uv = 3;
+}
+
+message face {
+  repeated index indices = 1;
+  optional int32 material = 2;
+}
+
+message texcoord {
+  repeated vec3 coords = 1;
+}
+
+message mesh {
+  optional string name = 1;
+  repeated vec3 vertices = 2;
+  repeated vec3 normals = 3;
+  repeated texcoord uvs = 4;
+  repeated face faces = 5;
+}
+
+message filedata {
+  repeated mesh meshes = 1;
+  repeated material materials = 2;
+}
+

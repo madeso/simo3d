@@ -33,14 +33,14 @@ class View : public wxGLCanvas {
   void OnMotion(wxMouseEvent& e);
   void OnWheel(wxMouseEvent& e);
 
-  void ClearBackground(const rgba& c);
+  void ClearBackground(const simo::rgba& c);
   void ClearDepth();
   void Invalidate();
-  void DrawNormals(const rgba& c);
-  void DrawEdges(const rgba& c, float width);
-  void DrawPoints(const rgba& c, float size);
-  void DrawFacesShaded(const material& c);
-  void DrawFacesPlain(const rgba& c);
+  void DrawNormals(const simo::rgba& c);
+  void DrawEdges(const simo::rgba& c, float width);
+  void DrawPoints(const simo::rgba& c, float size);
+  void DrawFacesShaded(const simo::material& c);
+  void DrawFacesPlain(const simo::rgba& c);
 
  private:
   float rotX;

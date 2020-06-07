@@ -2,106 +2,185 @@
 #define SIMO_DATA_HPP
 
 #include <string>
-#include <cml/cml.h>
+#include <src/simo.pb.h>
 #include <vector>
+#include <memory>
 
-struct vec3 {
-  vec3(float ax, float ay, float az) : x(ax), y(ay), z(az) {}
+simo::rgba Color(float r, float g, float b);
+simo::rgba White();
+simo::rgba Black();
 
-  union {
-    struct {
-      float x;
-      float y;
-      float z;
-    };
-    float array[3];
-  };
+simo::material DefaultMaterial();
 
-  float* data() { return array; }
-  const float* const data() const { return array; }
+class Data;
 
-  vec3 normalized() const;
-  float length() const;
-  float length_squared() const;
-};
+simo::vec3 operator+(const simo::vec3& lhs, const simo::vec3& rhs);
+simo::vec3 operator*(const simo::vec3& lhs, float rhs);
+simo::vec3 operator/(const simo::vec3& lhs, float rhs);
 
-struct rgba {
-  union {
-    struct {
-      float r;
-      float g;
-      float b;
-      float a;
-    };
-    float array[4];
-  };
+template<typename T, typename TOpenable>
+class Array;
 
-
-  rgba() : r(0.0f), g(0.0f), b(0.0f), a(1.0f) {}
-  rgba(float ar, float ag, float ab) : r(ar), g(ag), b(ab), a(1.0f) {}
-  rgba(float ar, float ag, float ab, float aa) : r(ar), g(ag), b(ab), a(aa) {}
-
-  float* data() { return array; }
-  const float* const data() const { return array; }
-};
-
-rgba White();
-rgba Black();
-
-struct texture {
-  std::string path;
-  int texture_coord;
-};
-
-struct material {
-  std::string name;
-  rgba ambient; // specify the ambient RGBA reflectance of the material. -1 to +1
-  rgba diffuse; // specify the diffuse RGBA reflectance of the material. -1 to +1
-  rgba specular;  // specify the specular RGBA reflectance of the material. -1 to +1
-  rgba emission; // specify the RGBA emitted light intensity of the material.-1 to +1
-  float shininess; // specifies the RGBA specular exponent of the material. 0 to 128 (clamped)
-
-  std::string shader;
-  std::vector<texture> textures;
-
-  material() : ambient(0.2f, 0.2f, 0.2f, 1.0f), diffuse(0.8f, 0.8f, 0.8f, 1.0f), specular(0.0f, 0.0f, 0.0f, 1.0f), emission(0.0f, 0.0f, 0.0f, 1.0f), shininess(0.0f) {}
-};
-
-vec3 operator+(const vec3& lhs, const vec3& rhs);
-vec3 operator*(const vec3& lhs, float rhs);
-vec3 operator*(float lhs, const vec3& rhs);
-vec3 operator/(const vec3& lhs, float rhs);
-
-struct Index {
-  explicit Index(int i);
-  int vertex;
-  int normal;
-  int uv;
-};
-
-class Face {
+template<typename T, typename TOpenable>
+class Assignable {
  public:
-  std::vector<Index> indices;
-  int material;
+  typedef Array<T, TOpenable> ArrayType;
+
+  Assignable(ArrayType* t, int i) : array(t), index(i) {
+  }
+
+  void set(const T& t);
+  const T& get() const;
+
+  void operator=(const T& t) {
+    set(t);
+  }
+
+  const T* operator->() const {
+    return &get();
+  }
+
+ private:
+  ArrayType* array;
+  int index;
 };
+
+template<typename T, typename TOpenable>
+class ArrayIt : public std::iterator<std::random_access_iterator_tag, T> {
+ public:
+  typedef Array<T, TOpenable> ArrayType;
+  typedef ArrayIt<T, TOpenable> iterator;
+
+  typedef std::iterator<std::random_access_iterator_tag, T> superclass;
+  // typedef typename remove_const<T>::type value_type;
+  typedef typename superclass::reference reference;
+  typedef typename superclass::pointer pointer;
+  typedef typename superclass::difference_type difference_type;
+
+  ArrayIt(ArrayType* a, int i) : array(a), index(i) {}
+
+  void operator+=(int steps) {
+    index += steps;
+  }
+
+  void operator++() {
+    ++index;
+  }
+
+  void operator++(int) {
+    ++index;
+  }
+
+  bool IsSame(const iterator& t) const {
+    return array == t.array && index == t.index;
+  }
+  bool operator==(const iterator& t) const {
+    return IsSame(t);
+  }
+  bool operator!=(const iterator& t) const {
+    return !IsSame(t);
+  }
+
+  Assignable<T, TOpenable> operator*() {
+    return Assignable<T, TOpenable>(array, index);
+  }
+
+  const T& get() const;
+
+  const T* operator*() const {
+    return &get();
+  }
+ private:
+  ArrayType* array;
+  int index;
+};
+
+template<typename T, typename TOpenable>
+class Array {
+ public:
+  typedef ArrayIt<T, TOpenable> iterator;
+  typedef ArrayIt<const T, TOpenable> const_iterator;
+  typedef T value_type;
+  typedef value_type& reference;
+  typedef const value_type& const_reference;
+  typedef value_type* pointer;
+  typedef const value_type* const_pointer;
+  typedef int size_type;
+  typedef ptrdiff_t difference_type;
+
+  Array(TOpenable* openable, google::protobuf::RepeatedPtrField<T>* array) : openable_(openable), array_(array) {}
+
+  const T& at(int index) const {
+    return array_->Get(index);
+  }
+
+  void set(int index, const T& t) {
+    openable_->assertOpen();
+    *array_->Mutable(index) = t;
+  }
+
+  iterator begin() {
+    return iterator(this, 0);
+  }
+
+  iterator end() {
+    return iterator(this, size());
+  }
+
+  int size() const {
+    return array_->size();
+  }
+
+ private:
+  TOpenable* openable_;
+  google::protobuf::RepeatedPtrField<T>* array_;
+};
+
+template<typename T, typename TOpenable>
+const T& ArrayIt<T, TOpenable>::get() const {
+  return array->at(index);
+}
+
+template<typename T, typename TOpenable>
+void Assignable<T, TOpenable>::set(const T& t) {
+  array->set(index, t);
+}
+
+template<typename T, typename TOpenable>
+const T& Assignable<T, TOpenable>::get() const {
+  return array->at(index);
+}
 
 class Mesh {
  public:
-  std::string name;
+  Mesh(simo::filedata* d, int ind);
+  Array<simo::vec3, Mesh> vertices();
 
-  std::vector<vec3> vertices;
-  std::vector<vec3> normals;
-  std::vector< std::vector<vec3> > uvs;
+  void open();
+  void close();
+  void assertOpen();
 
-  std::vector<Face> faces;
+  std::string toString() const;
+ private:
+  simo::filedata* data;
+  int index; // the mesh index in the array
+
+  std::unique_ptr<simo::mesh> old; // if set we are open for modification, if not we are readonly
 };
+
+class View;
 
 class Data {
  public:
-  std::vector<Mesh> meshes;
-  std::vector<material> materials;
+  Mesh meshes();
 
   void import(const std::string& path);
+ private:
+  // meshes
+  // data
+  friend class Mesh;
+  friend class View;
+  simo::filedata data;
 };
 
 #endif

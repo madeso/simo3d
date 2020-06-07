@@ -44,7 +44,8 @@ include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/external/sol2/)
 
 include_directories(SYSTEM ${CMAKE_CURRENT_BINARY_DIR})
 protobuf_generate_cpp(GUI_PROTO_SRCS GUI_PROTO_HDRS gui.proto)
-set(app_src ${app_src_glob} "${PROJECT_BINARY_DIR}/simo3d-config.h" gui.proto)
+protobuf_generate_cpp(SIMO_PROTO_SRCS SIMO_PROTO_HDRS simo.proto)
+set(app_src ${app_src_glob} "${PROJECT_BINARY_DIR}/simo3d-config.h" gui.proto simo.proto)
 
 set(pbjson_src
     ${CMAKE_SOURCE_DIR}/external/pbjson/src/pbjson.cpp
@@ -54,13 +55,13 @@ set(pbjson_src
 
 source_group("" FILES ${app_src})
 source_group("lua" FILES ${src_lua})
-source_group("generated" FILES ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS})
+source_group("generated" FILES ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS} ${SIMO_PROTO_SRCS} ${SIMO_PROTO_HDRS})
 source_group("external" FILES ${pbjson_src})
 source_group(cmake FILES "${PROJECT_SOURCE_DIR}/simo3d-config-in.h")
 
 set(all_src ${app_src} ${src_lua} "${PROJECT_SOURCE_DIR}/simo3d-config-in.h"
     ${src_glew} ${src_soil} ${src_jsoncpp} ${pbjson_src}
-    ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS})
+    ${GUI_PROTO_SRCS} ${GUI_PROTO_HDRS} ${SIMO_PROTO_SRCS} ${SIMO_PROTO_HDRS})
 
 include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/external/pbjson/src/)
 

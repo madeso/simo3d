@@ -14,13 +14,19 @@ function debug()
 end
 
 function scalemesh(s)
-  for _, m in ipairs(file().meshes) do
+  m = file().meshes
+  print("scaling")
+  print("db", m)
+  --for _, m in ipairs(file().meshes) do
     for _, old in ipairs(m.vertices) do
+      print "vert"
+      oldx = old.x
+      print "dog"
       old.x = old.x * s
       old.y = old.y * s
       old.z = old.z * s
     end
-  end
+  -- end
 end
 
 function render_face_and_normals()

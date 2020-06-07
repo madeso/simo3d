@@ -1,56 +1,110 @@
 #include "data.h"
-
 #include "functions.h"
 
 #include <assimp/Importer.hpp>   // C++ importer interface
 #include <assimp/scene.h>        // Output data structure
 #include <assimp/postprocess.h>  // Post processing flags
 
-#include "wx.h"
-#include "wxgl.h"
-
-vec3 vec3::normalized() const {
-  return *this / length();
+simo::vec3 operator+(const simo::vec3& lhs, const simo::vec3& rhs) {
+  simo::vec3 r;
+  r.set_x(lhs.x() + rhs.x());
+  r.set_y(lhs.y() + rhs.y());
+  r.set_z(lhs.z() + rhs.z());
+  return r;
 }
-float vec3::length() const {
-  return sqrt(length_squared());
-}
-float vec3::length_squared() const {
-  return x*x + y*y + z*z;
-}
-
-rgba White() { return rgba(1.0f, 1.0f, 1.0f); }
-rgba Black() { return rgba(0.0f, 0.0f, 0.0f); }
-
-vec3 operator+(const vec3& lhs, const vec3& rhs) {
-  return vec3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+simo::vec3 operator*(const simo::vec3& lhs, float rhs) {
+  simo::vec3 r;
+  r.set_x(lhs.x() * rhs);
+  r.set_y(lhs.y() * rhs);
+  r.set_z(lhs.z() * rhs);
+  return r;
 }
 
-vec3 operator*(const vec3& lhs, float rhs) {
-  return vec3(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs);
-}
-vec3 operator*(float lhs, const vec3& rhs) {
-  return rhs * lhs;
-}
-vec3 operator/(const vec3& lhs, float rhs) {
-  return lhs * (1.0f / rhs);
+simo::vec3 operator/(const simo::vec3& lhs, float rhs) {
+  simo::vec3 r;
+  r.set_x(lhs.x() / rhs);
+  r.set_y(lhs.y() / rhs);
+  r.set_z(lhs.z() / rhs);
+  return r;
 }
 
-Index::Index(int i) : vertex(i), normal(i), uv(i) {}
+simo::rgba Color(float r, float g, float b) { simo::rgba re; re.set_r(r); re.set_g(g); re.set_b(b); return re; }
+simo::rgba White() { return Color(1.0f, 1.0f, 1.0f); }
+simo::rgba Black() { return Color(0.0f, 0.0f, 0.0f); }
 
 namespace {
-void vecopy(std::vector<vec3>& t, aiVector3D* s, unsigned int c) {
-  t.reserve(c);
+void C(simo::rgba* r, aiColor3D c) {
+  r->set_r(c.r);
+  r->set_g(c.g);
+  r->set_b(c.b);
+  r->set_a(1.0f);
+}
+}
+
+simo::material DefaultMaterial() {
+  simo::material m;
+  *m.mutable_ambient() = Color(0.2f, 0.2f, 0.2f);
+  *m.mutable_diffuse() = Color(0.8f, 0.8f, 0.8f);
+  *m.mutable_specular() = Color(0.0f, 0.0f, 0.0f);
+  *m.mutable_emission() = Color(0.0f, 0.0f, 0.0f);
+  m.set_shininess(0.0f);
+  return m;
+}
+
+simo::index Index(int i) {
+  simo::index index;
+  index.set_vertex(i);
+  index.set_normal(i);
+  index.set_uv(i);
+  return index;
+}
+
+Array<simo::vec3, Mesh> Mesh::vertices() {
+  auto* vertices = data->mutable_meshes(index)->mutable_vertices();
+  return Array<simo::vec3, Mesh>(this, vertices);
+}
+
+void Mesh::open() {
+  if( old.get() != nullptr ) {
+    throw "Unable to open, mesh is already opened!";
+  }
+  old.reset( new simo::mesh(data->meshes(index)) );
+}
+
+void Mesh::close() {
+  if( old.get() == nullptr ) {
+    throw "Unable to close, mesh wasn't opened!";
+  }
+  old.reset();
+}
+
+void Mesh::assertOpen() {
+  if( old.get() == nullptr ) {
+    throw "Mesh isn't open!";
+  }
+}
+
+namespace {
+void vecopy(google::protobuf::RepeatedPtrField<simo::vec3>* t, aiVector3D* s, unsigned int c) {
+  t->Clear();
   for (unsigned i = 0; i < c; ++i) {
-    t.push_back(vec3(s[i].x, s[i].y, s[i].z));
+    simo::vec3* v = t->Add();
+    v->set_x(s[i].x);
+    v->set_y(s[i].y);
+    v->set_z(s[i].z);
   }
 }
 }
 
-namespace {
-rgba C(aiColor3D c) {
-  return rgba(c.r, c.g, c.b);
+Mesh::Mesh(simo::filedata* d, int ind) : data(d), index(ind) {
 }
+
+Mesh Data::meshes() {
+  return Mesh(&data, 0);
+}
+
+std::string Mesh::toString() const {
+  return data->meshes(index).name();
 }
 
 void Data::import(const std::string& path) {
@@ -63,73 +117,63 @@ void Data::import(const std::string& path) {
     throw std::runtime_error(importer.GetErrorString());
   }
 
-  meshes.clear();
-  meshes.reserve(scene->mNumMeshes);
-
-  materials.clear();
-  materials.reserve(scene->mNumMaterials);
+  data.clear_materials();
+  data.clear_meshes();
 
   for (unsigned int imat = 0; imat  < scene->mNumMaterials; ++imat ) {
-    material m;
+    simo::material* m = data.add_materials();
     aiMaterial* mat = scene->mMaterials[imat];
 
     aiString name;
     aiColor3D color;
 
     mat->Get(AI_MATKEY_NAME, name);
-    m.name = name.C_Str();
+    m->set_name(name.C_Str());
 
     if(AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_DIFFUSE, color)) {
-      m.diffuse = C(color);
+      C(m->mutable_diffuse(), color);
     }
     if(AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_SPECULAR, color)) {
-      m.specular = C(color);
+      C(m->mutable_specular(), color);
     }
     if(AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_AMBIENT, color)) {
-      m.ambient = C(color);
+      C(m->mutable_ambient(), color);
     }
     if(AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_EMISSIVE, color)) {
-      m.emission = C(color);
+      C(m->mutable_emission(), color);
     }
 
-    mat->Get(AI_MATKEY_SHININESS, m.shininess);
+    float f = 0.0f;
+    mat->Get(AI_MATKEY_SHININESS, f);
+    m->set_shininess(f);
 
     // get textures
-    materials.push_back(m);
   }
 
   for (unsigned int imesh = 0; imesh < scene->mNumMeshes; ++imesh) {
     aiMesh* amesh = scene->mMeshes[imesh];
-    Mesh mesh;
-    mesh.name = amesh->mName.data;
-    vecopy(mesh.vertices, amesh->mVertices, amesh->mNumVertices);
+    simo::mesh* mesh = data.add_meshes();
+    mesh->set_name(amesh->mName.data);
+    vecopy(mesh->mutable_vertices(), amesh->mVertices, amesh->mNumVertices);
     if (amesh->mNormals) {
-      vecopy(mesh.normals, amesh->mNormals, amesh->mNumVertices);
+      vecopy(mesh->mutable_normals(), amesh->mNormals, amesh->mNumVertices);
     }
 
     for(unsigned int ti=0; ti<8; ++ti) {
       if( amesh->mTextureCoords[ti] ) {
-        std::vector<vec3> uv;
-        vecopy(uv, amesh->mTextureCoords[ti], amesh->mNumUVComponents[ti]);
-        mesh.uvs.push_back(uv);
+        simo::texcoord* uv = mesh->add_uvs();
+        vecopy(uv->mutable_coords(), amesh->mTextureCoords[ti], amesh->mNumUVComponents[ti]);
       }
-    }
-
-    for(vec3& n: mesh.normals) {
-      n = n.normalized();
     }
 
     for (unsigned int iface = 0; iface < amesh->mNumFaces; ++iface) {
       const aiFace& aface = amesh->mFaces[iface];
-      Face face;
-      face.material = amesh->mMaterialIndex;
+      simo::face* face = mesh->add_faces();
+      face->set_material(amesh->mMaterialIndex);
       for (unsigned int i = 0; i < aface.mNumIndices; ++i) {
-        Index index { aface.mIndices[i] };
-        face.indices.push_back(index);
+        simo::index* index = face->add_indices();
+        *index = Index(aface.mIndices[i]);
       }
-      mesh.faces.push_back(face);
     }
-
-    meshes.push_back(mesh);
   }
 }
